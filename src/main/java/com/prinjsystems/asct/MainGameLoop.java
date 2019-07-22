@@ -1,6 +1,6 @@
 package com.prinjsystems.asct;
 
-import com.prinjsystems.asct.engine.GameDisplay;
+import com.prinjsystems.asct.renderingengine.GameDisplay;
 import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.GameMap;
 import com.prinjsystems.asct.structures.Layer;
@@ -104,12 +104,5 @@ public class MainGameLoop {
                 display.render();
             }
         }, 0, (int) (1000 / TARGET_FPS));
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                map.increaseLayer();
-            }
-        }, 3000, 3000);
     }
 }

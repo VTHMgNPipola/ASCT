@@ -1,10 +1,13 @@
-package com.prinjsystems.asct.engine;
+package com.prinjsystems.asct.renderingengine;
 
 import com.prinjsystems.asct.structures.GameMap;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JFrame;
 
 public class GameDisplay {
@@ -25,6 +28,12 @@ public class GameDisplay {
         frame.setContentPane(panel);
         frame.pack();
         frame.setLocationRelativeTo(null);
+
+        Map<Integer, Runnable> keyEvents = new HashMap<>();
+        keyEvents.put(KeyEvent.VK_PERIOD, () -> map.decreaseLayer());
+        keyEvents.put(KeyEvent.VK_COMMA, () -> map.increaseLayer());
+        KeyboardHandler keyboardHandler = new KeyboardHandler(keyEvents);
+        frame.addKeyListener(keyboardHandler);
     }
 
     public void setMap(GameMap map) {

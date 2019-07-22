@@ -43,7 +43,7 @@ public abstract class ConductorTile extends ActionTile {
         super.render(g);
         if (connectedTo != null) {
             g.setColor(new Color(255, 212, 0));
-            g.drawRect(posX * TILE_SIZE, posY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            g.drawRect(posX * TILE_SIZE, posY * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
         }
     }
 
