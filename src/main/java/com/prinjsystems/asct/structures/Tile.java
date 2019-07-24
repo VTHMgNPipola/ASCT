@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.io.Serializable;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Tile implements Serializable {
     protected static final int TILE_SIZE = 4;
@@ -16,7 +17,7 @@ public abstract class Tile implements Serializable {
     protected float meltingTemp = 200;
     protected float irradiationRatio = 0.025f;
     protected float airIrradiationRatio = 0.015f;
-    protected int viscosity = 2; // An int value that determines how fast it falls when molten
+    protected int viscosity = 2, currV = viscosity; // An int value that determines how fast it falls when molten
     private int vTick = 0; // Viscosity tick
     private String name, shortenedName;
 
@@ -85,7 +86,7 @@ public abstract class Tile implements Serializable {
 
     public void update() {
         if (temp > meltingTemp) { // Is molten
-            if (++vTick == viscosity) {
+            if (++vTick == currV) {
                 if (from.getTile(posX, posY + 1) == null) { // Y + 1 is one below
                     from.swapTiles(posX, posY, posX, posY + 1);
                 } else {
@@ -105,6 +106,7 @@ public abstract class Tile implements Serializable {
                     }
                 }
                 vTick = 0;
+                currV = ThreadLocalRandom.current().nextInt(viscosity - 2, viscosity + 3);
             }
         }
 
