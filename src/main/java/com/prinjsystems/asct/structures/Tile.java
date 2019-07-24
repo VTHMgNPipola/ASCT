@@ -14,6 +14,10 @@ public abstract class Tile implements Serializable {
     protected Layer from;
     protected float temp;
     protected float meltingTemp = 200;
+    protected float irradiationRatio = 0.025f;
+    protected float airIrradiationRatio = 0.015f;
+    protected int viscosity = 2; // An int value that determines how fast it falls when molten
+    private int vTick = 0; // Viscosity tick
     private String name, shortenedName;
 
     protected Tile(int posX, int posY, Color color) {
@@ -81,23 +85,39 @@ public abstract class Tile implements Serializable {
 
     public void update() {
         if (temp > meltingTemp) { // Is molten
-            if (from.getTile(posX, posY + 1) == null) { // Y + 1 is one below
-                from.swapTiles(posX, posY, posX, posY + 1);
-            } else {
-                boolean leftFirst = random.nextBoolean();
-                if (leftFirst) {
-                    if (from.getTile(posX - 1, posY + 1) == null) {
-                        from.swapTiles(posX, posY, posX - 1, posY + 1);
-                    } else if (from.getTile(posX + 1, posY + 1) == null) {
-                        from.swapTiles(posX, posY, posX + 1, posY + 1);
-                    }
+            if (++vTick == viscosity) {
+                if (from.getTile(posX, posY + 1) == null) { // Y + 1 is one below
+                    from.swapTiles(posX, posY, posX, posY + 1);
                 } else {
-                    if (from.getTile(posX + 1, posY + 1) == null) {
-                        from.swapTiles(posX, posY, posX + 1, posY + 1);
-                    } else if (from.getTile(posX - 1, posY + 1) == null) {
-                        from.swapTiles(posX, posY, posX - 1, posY + 1);
+                    boolean leftFirst = random.nextBoolean();
+                    if (leftFirst) {
+                        if (from.getTile(posX - 1, posY + 1) == null) {
+                            from.swapTiles(posX, posY, posX - 1, posY + 1);
+                        } else if (from.getTile(posX + 1, posY + 1) == null) {
+                            from.swapTiles(posX, posY, posX + 1, posY + 1);
+                        }
+                    } else {
+                        if (from.getTile(posX + 1, posY + 1) == null) {
+                            from.swapTiles(posX, posY, posX + 1, posY + 1);
+                        } else if (from.getTile(posX - 1, posY + 1) == null) {
+                            from.swapTiles(posX, posY, posX - 1, posY + 1);
+                        }
                     }
                 }
+                vTick = 0;
+            }
+        }
+
+        // Irradiate heat
+        Tile[] tilesAround = from.getTilesAround(posX, posY);
+        for (Tile t : tilesAround) {
+            // Since the resistances would be so low, I decided to arbitrarily choose a "irradiation ratio" for
+            // each material
+            if (t == null && temp > 27) { // Let's make so that air cannot heat up and is at 27C
+                temp -= temp * airIrradiationRatio;
+            } else if (t != null && t.getTemp() < temp && temp > 27) {
+                t.setTemp(t.getTemp() + temp * irradiationRatio);
+                temp -= temp * irradiationRatio;
             }
         }
     }

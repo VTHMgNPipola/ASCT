@@ -67,16 +67,16 @@ public class Layer implements Serializable {
 
         // All this looks horrible but removing a lot of logic and two for loops increases performance
         Tile t;
-        if ((t = getTile(x - 1, y)) != null) {
+        if (x > 0 && (t = getTile(x - 1, y)) != null) {
             result[0] = t;
         }
-        if ((t = getTile(x + 1, y)) != null) {
+        if (x < LAYER_SIZE - 1 && (t = getTile(x + 1, y)) != null) {
             result[1] = t;
         }
-        if ((t = getTile(x, y - 1)) != null) {
+        if (y > 0 && (t = getTile(x, y - 1)) != null) {
             result[2] = t;
         }
-        if ((t = getTile(x, y + 1)) != null) {
+        if (y < LAYER_SIZE - 1 && (t = getTile(x, y + 1)) != null) {
             result[3] = t;
         }
 

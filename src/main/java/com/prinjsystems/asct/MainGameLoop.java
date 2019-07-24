@@ -4,7 +4,9 @@ import com.prinjsystems.asct.renderingengine.GameDisplay;
 import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.GameMap;
 import com.prinjsystems.asct.structures.Layer;
+import com.prinjsystems.asct.structures.ThermalConductor;
 import com.prinjsystems.asct.structures.Tile;
+import com.prinjsystems.asct.structures.conductors.AluminiumConductor;
 import com.prinjsystems.asct.structures.conductors.CopperConductor;
 import com.prinjsystems.asct.structures.conductors.light.RedPixel;
 import com.prinjsystems.asct.structures.conductors.semiconductors.NSilicon;
@@ -55,10 +57,21 @@ public class MainGameLoop {
         layer2.add(new CopperConductor(9, 1));
         layer2.add(new CopperConductor(8, 1));
         layer2.add(new CopperConductor(7, 1));
-        layer2.add(new CopperConductor(6, 1));
+        CopperConductor moltenCopper = new CopperConductor(6, 1);
+        moltenCopper.setTemp(2000f);
+        layer2.add(moltenCopper);
         layer2.add(new CopperConductor(5, 1));
         layer2.add(new PSilicon(4, 1));
         layer2.add(new NSilicon(3, 1));
+
+        layer2.add(new ThermalConductor(5, 2));
+        layer2.add(new ThermalConductor(6, 2));
+        layer2.add(new ThermalConductor(7, 2));
+        //layer2.add(new AluminiumConductor(4, 3));
+        layer2.add(new AluminiumConductor(5, 3));
+        layer2.add(new AluminiumConductor(6, 3));
+        layer2.add(new AluminiumConductor(7, 3));
+        //layer2.add(new AluminiumConductor(8, 3));
 
         layer2.add(new CopperConductor(3, 9));
         PSilicon pSilicon = new PSilicon(2, 10);
@@ -87,6 +100,7 @@ public class MainGameLoop {
         layers.add(new Layer(layer2));
         layers.add(new Layer(layer3));
         GameMap map = new GameMap(layers);
+        map.setCurrentLayer(1);
         display.setMap(map);
 
         Timer timer = new Timer();
@@ -95,7 +109,7 @@ public class MainGameLoop {
             public void run() {
                 display.tick();
             }
-        }, 1000, (int) (1000 / TARGET_CLOCK_FREQUENCY));
+        }, 2000, (int) (1000 / TARGET_CLOCK_FREQUENCY));
 
         display.setVisible(true);
         timer.scheduleAtFixedRate(new TimerTask() {
