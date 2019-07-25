@@ -9,7 +9,7 @@ import java.util.List;
 public class Layer implements Serializable {
     private static final long serialVersionUID = 2019849710583642798L;
 
-    private static final int LAYER_SIZE = 1024; // Technically, the largest possible number is 32768, since the
+    public static final int LAYER_SIZE = 1024; // Technically, the largest possible number is 32768, since the
     // largest int number, and so the largest array index, is 2 ^ 31 - 1, 65536 * 65536 is just big enough to not fit.
     // However, there are limitations to how many memory the JVM can allocate, and since the computer I'm using to
     // develop this "game" is basically a potato, there's not much to use.

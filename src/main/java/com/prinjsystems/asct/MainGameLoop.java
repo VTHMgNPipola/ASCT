@@ -67,11 +67,11 @@ public class MainGameLoop {
         layer2.add(new ThermalConductor(5, 2));
         layer2.add(new ThermalConductor(6, 2));
         layer2.add(new ThermalConductor(7, 2));
-        //layer2.add(new AluminiumConductor(4, 3));
+        layer2.add(new AluminiumConductor(4, 3));
         layer2.add(new AluminiumConductor(5, 3));
         layer2.add(new AluminiumConductor(6, 3));
         layer2.add(new AluminiumConductor(7, 3));
-        //layer2.add(new AluminiumConductor(8, 3));
+        layer2.add(new AluminiumConductor(8, 3));
 
         layer2.add(new CopperConductor(3, 9));
         PSilicon pSilicon = new PSilicon(2, 10);
