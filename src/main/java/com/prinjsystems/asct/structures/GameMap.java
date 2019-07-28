@@ -24,6 +24,14 @@ public class GameMap implements Serializable {
         }
     }
 
+    public List<Layer> getLayers() {
+        return layers;
+    }
+
+    public int getCurrentLayer() {
+        return currentLayer;
+    }
+
     public void setCurrentLayer(int currentLayer) {
         this.currentLayer = currentLayer;
     }

@@ -116,6 +116,7 @@ public class MainGameLoop {
             @Override
             public void run() {
                 display.render();
+                display.updateInputs();
             }
         }, 0, (int) (1000 / TARGET_FPS));
     }

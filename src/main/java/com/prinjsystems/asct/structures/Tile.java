@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Tile implements Serializable {
-    protected static final int TILE_SIZE = 4;
+    public static final int TILE_SIZE = 4;
     private static final long serialVersionUID = -2265316791600841307L;
     private static final Random random = new Random();
     protected int posX, posY;

@@ -62,6 +62,10 @@ public class Layer implements Serializable {
         tile.from = this;
     }
 
+    public void removeTile(int posX, int posY) {
+        tiles[posX + posY * LAYER_SIZE] = null;
+    }
+
     public Tile[] getTilesAround(int x, int y) {
         Tile[] result = new Tile[4];
 
@@ -83,7 +87,7 @@ public class Layer implements Serializable {
         return result;
     }
 
-    Tile getTile(int x, int y) {
+    public Tile getTile(int x, int y) {
         return tiles[x + y * LAYER_SIZE];
     }
 
