@@ -12,7 +12,6 @@ public class Transistor extends ConductorTile {
     protected Color conductiveColor;
     private int conductiveFor;
     private boolean conductive;
-    private int poweredFromX = 0, poweredFromY = 0, conductingFromX, conductingFromY;
 
     public Transistor(int posX, int posY) {
         super(posX, posY, new Color(103, 75, 120), "Transistor");
@@ -30,12 +29,8 @@ public class Transistor extends ConductorTile {
             if (source instanceof NSilicon) {
                 conductive = true;
                 conductiveFor = 0;
-                conductingFromX = source.getPosX();
-                conductingFromY = source.getPosY();
             } else if (source instanceof PSilicon && conductive) {
                 super.trySetPowered(true, null);
-                poweredFromX = source.getPosX();
-                poweredFromY = source.getPosY();
             }
         }
     }
@@ -59,8 +54,6 @@ public class Transistor extends ConductorTile {
 
     @Override
     protected boolean isValid(Tile tile) {
-        return (tile instanceof PSilicon && tile.getPosX() != poweredFromX && tile.getPosY() != poweredFromY) ||
-                (tile instanceof NSilicon && tile.getPosX() != conductingFromX && tile.getPosY() != conductingFromY) ||
-                tile instanceof ActionTile;
+        return tile instanceof ActionTile && !(tile instanceof PSilicon) && !(tile instanceof NSilicon);
     }
 }
