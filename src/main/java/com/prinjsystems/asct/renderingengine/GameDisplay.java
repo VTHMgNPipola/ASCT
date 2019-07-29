@@ -1,5 +1,6 @@
 package com.prinjsystems.asct.renderingengine;
 
+import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.GameMap;
 import com.prinjsystems.asct.structures.Insulator;
 import com.prinjsystems.asct.structures.Layer;
@@ -8,9 +9,11 @@ import com.prinjsystems.asct.structures.Tile;
 import com.prinjsystems.asct.structures.conductors.AluminiumConductor;
 import com.prinjsystems.asct.structures.conductors.Clock;
 import com.prinjsystems.asct.structures.conductors.CopperConductor;
+import com.prinjsystems.asct.structures.conductors.Spark;
 import com.prinjsystems.asct.structures.conductors.light.RedPixel;
 import com.prinjsystems.asct.structures.conductors.semiconductors.NSilicon;
 import com.prinjsystems.asct.structures.conductors.semiconductors.PSilicon;
+import com.prinjsystems.asct.structures.conductors.semiconductors.PermanentSwitch;
 import com.prinjsystems.asct.structures.conductors.semiconductors.ToggleSwitch;
 import com.prinjsystems.asct.structures.conductors.semiconductors.Transistor;
 import java.awt.Color;
@@ -39,10 +42,11 @@ public class GameDisplay {
 
     private boolean paused = false;
 
-    private Tile[] tiles = new Tile[]{new CopperConductor(0, 0), new NSilicon(0, 0),
+    private Tile[] tiles = new Tile[]{new Spark(), new CopperConductor(0, 0), new NSilicon(0, 0),
             new PSilicon(0, 0), new Transistor(0, 0), new ToggleSwitch(0, 0),
-            new Clock(0, 0), new RedPixel(0, 0), new Insulator(0, 0),
-            new ThermalConductor(0, 0), new AluminiumConductor(0, 0)};
+            new PermanentSwitch(0, 0), new Clock(0, 0), new RedPixel(0, 0),
+            new Insulator(0, 0), new ThermalConductor(0, 0),
+            new AluminiumConductor(0, 0)};
     private int currentTile = 0;
 
     public GameDisplay(Dimension resolution) {
@@ -133,13 +137,19 @@ public class GameDisplay {
                 int posY = (int) (((getY() - camera.getTranslateY()) / Tile.TILE_SIZE) / camera.getScaleY());
                 if (posX >= 0 && posX <= Layer.LAYER_SIZE && posY >= 0 && posY <= Layer.LAYER_SIZE) {
                     Layer layer = map.getLayers().get(map.getCurrentLayer());
-                    if (layer.getTile(posX, posY) == null) {
-                        try {
-                            layer.addTile(tiles[currentTile].getClass().getDeclaredConstructor(int.class, int.class)
-                                    .newInstance(posX, posY));
-                        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
-                                | InvocationTargetException e) {
-                            e.printStackTrace();
+                    if (tiles[currentTile] instanceof Spark) {
+                        if (layer.getTile(posX, posY) instanceof ActionTile) {
+                            ((ActionTile) layer.getTile(posX, posY)).trySetPowered(true, null);
+                        }
+                    } else {
+                        if (layer.getTile(posX, posY) == null) {
+                            try {
+                                layer.addTile(tiles[currentTile].getClass().getDeclaredConstructor(int.class, int.class)
+                                        .newInstance(posX, posY));
+                            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
+                                    | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -162,9 +172,7 @@ public class GameDisplay {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
                     camera.scale(1.5f, 1.5f);
                 } else {
-                    if (++currentTile >= tiles.length) {
-                        currentTile = 0;
-                    }
+                    currentTile = nextTileIndex();
                 }
             }
         });
@@ -174,9 +182,7 @@ public class GameDisplay {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
                     camera.scale(0.5f, 0.5f);
                 } else {
-                    if (--currentTile < 0) {
-                        currentTile = tiles.length - 1;
-                    }
+                    currentTile = previousTileIndex();
                 }
             }
         });
@@ -203,11 +209,26 @@ public class GameDisplay {
         graphics.setTransform(identityTransform);
         graphics.setColor(Color.black);
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
+
+        // Draw current tile
         graphics.setColor(tiles[currentTile].getColor());
         graphics.fillRect(4, panel.getHeight() - 36, 32, 32);
         graphics.setFont(font);
         graphics.drawString(tiles[currentTile].getName(), 38,
                 panel.getHeight() - 32 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
+
+        // Draw next tile
+        graphics.setColor(tiles[nextTileIndex()].getColor());
+        graphics.fillRect(38, panel.getHeight() - 12, 8, 8);
+        graphics.drawString("NEXT", 38,
+                panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
+
+        // Draw previous tile
+        graphics.setColor(tiles[previousTileIndex()].getColor());
+        graphics.fillRect(graphics.getFontMetrics().stringWidth("NEXT") + 40, panel.getHeight() - 12, 8, 8);
+        graphics.drawString("PREVIOUS", graphics.getFontMetrics().stringWidth("NEXT") + 40,
+                panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
+
         graphics.setTransform(camera);
         map.render(graphics);
         panel.repaint();
@@ -228,5 +249,19 @@ public class GameDisplay {
 
     public boolean isPaused() {
         return paused;
+    }
+
+    private int nextTileIndex() {
+        if (currentTile + 1 >= tiles.length) {
+            return 0;
+        }
+        return currentTile + 1;
+    }
+
+    private int previousTileIndex() {
+        if (currentTile == 0) {
+            return tiles.length - 1;
+        }
+        return currentTile - 1;
     }
 }

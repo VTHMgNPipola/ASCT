@@ -1,6 +1,5 @@
 package com.prinjsystems.asct.structures.conductors.semiconductors;
 
-import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.Tile;
 import com.prinjsystems.asct.structures.conductors.ConductorTile;
 import java.awt.Color;
@@ -8,10 +7,10 @@ import java.awt.Color;
 public class Transistor extends ConductorTile {
     private static final long serialVersionUID = 3056763776572443061L;
 
+    protected boolean conductive;
     protected int conductiveDelay = 4;
     protected Color conductiveColor;
-    private int conductiveFor;
-    private boolean conductive;
+    protected int conductiveFor;
 
     public Transistor(int posX, int posY) {
         super(posX, posY, new Color(103, 75, 120), "Transistor");
@@ -54,6 +53,6 @@ public class Transistor extends ConductorTile {
 
     @Override
     protected boolean isValid(Tile tile) {
-        return tile instanceof ActionTile && !(tile instanceof PSilicon) && !(tile instanceof NSilicon);
+        return !(tile instanceof PSilicon) && !(tile instanceof NSilicon);
     }
 }
