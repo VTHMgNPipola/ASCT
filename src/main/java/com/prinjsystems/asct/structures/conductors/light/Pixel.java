@@ -14,8 +14,8 @@ public abstract class Pixel extends ActionTile {
     private boolean spreading = true;
     private Color offColor;
 
-    protected Pixel(int posX, int posY, Color color, Color offColor) {
-        super(posX, posY, color, false);
+    protected Pixel(int posX, int posY, Color color, Color offColor, String name) {
+        super(posX, posY, color, name, false);
         this.offColor = offColor;
     }
 

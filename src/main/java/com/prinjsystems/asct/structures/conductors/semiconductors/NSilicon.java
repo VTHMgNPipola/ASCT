@@ -8,7 +8,7 @@ public class NSilicon extends ConductorTile {
     private static final long serialVersionUID = -649556609668628613L;
 
     public NSilicon(int posX, int posY) {
-        super(posX, posY, new Color(50, 100, 230));
+        super(posX, posY, new Color(50, 100, 230), "N-type Silicon");
     }
 
     @Override

@@ -19,12 +19,13 @@ public abstract class Tile implements Serializable {
     protected float airIrradiationRatio = 0.015f;
     protected int viscosity = 2, currV = viscosity; // An int value that determines how fast it falls when molten
     private int vTick = 0; // Viscosity tick
-    private String name, shortenedName;
+    protected String name, shortenedName;
 
-    protected Tile(int posX, int posY, Color color) {
+    protected Tile(int posX, int posY, Color color, String name) {
         this.posX = posX;
         this.posY = posY;
         this.color = color;
+        this.name = name;
         temp = 27; // 27 Celsius
     }
 

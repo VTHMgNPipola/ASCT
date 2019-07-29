@@ -23,7 +23,17 @@ public class MainGameLoop {
     private static final float TARGET_CLOCK_FREQUENCY = 30f; // Frequency in Hertz
 
     public static void main(String[] args) {
-        GameDisplay display = new GameDisplay(new Dimension(1280, 768));
+        Dimension resolution = new Dimension(1280, 768);
+        for (String arg : args) {
+            if (arg.matches("--res=\\d+x\\d+")) {
+                String[] parts = arg.split("x");
+                int width = Integer.parseInt(parts[0].substring(6));
+                int height = Integer.parseInt(parts[1]);
+                resolution = new Dimension(width, height);
+            }
+        }
+
+        GameDisplay display = new GameDisplay(resolution);
 
         List<Tile> layer1 = new ArrayList<>();
         for (int y = 10; y < 18; y++) {

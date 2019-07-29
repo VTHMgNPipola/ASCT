@@ -10,7 +10,7 @@ public class ToggleSwitch extends ConductorTile {
     private boolean powerP = true;
 
     public ToggleSwitch(int posX, int posY) {
-        super(posX, posY, new Color(255, 0, 255));
+        super(posX, posY, new Color(255, 0, 255), "Toggle Switch");
     }
 
     @Override

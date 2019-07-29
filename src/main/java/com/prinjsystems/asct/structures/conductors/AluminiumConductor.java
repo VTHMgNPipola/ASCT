@@ -6,7 +6,7 @@ public class AluminiumConductor extends ConductorTile {
     private static final long serialVersionUID = -264047126453588482L;
 
     public AluminiumConductor(int posX, int posY) {
-        super(posX, posY, new Color(205, 205, 207));
+        super(posX, posY, new Color(205, 205, 207), "Aluminum Conductor");
         meltingTemp = 660.32f;
         airIrradiationRatio = 0.075f;
     }

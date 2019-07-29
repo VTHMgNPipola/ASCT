@@ -15,6 +15,7 @@ import com.prinjsystems.asct.structures.conductors.semiconductors.ToggleSwitch;
 import com.prinjsystems.asct.structures.conductors.semiconductors.Transistor;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -31,6 +32,7 @@ public class GameDisplay {
     private GamePanel panel;
     private Graphics2D graphics;
     private AffineTransform camera, identityTransform;
+    private Font font;
     private KeyboardHandler keyboardHandler;
 
     private GameMap map;
@@ -54,6 +56,7 @@ public class GameDisplay {
         frame.setContentPane(panel);
         frame.pack();
         frame.setLocationRelativeTo(null);
+        font = new Font("Monospaced", Font.PLAIN, 13);
         camera = new AffineTransform();
         identityTransform = new AffineTransform();
         identityTransform.setToIdentity();
@@ -214,6 +217,9 @@ public class GameDisplay {
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
         graphics.setColor(tiles[currentTile].getColor());
         graphics.fillRect(4, panel.getHeight() - 36, 32, 32);
+        graphics.setFont(font);
+        graphics.drawString(tiles[currentTile].getName(), 38,
+                panel.getHeight() - 32 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
         graphics.setTransform(camera);
         map.render(graphics);
         panel.repaint();

@@ -10,8 +10,8 @@ public abstract class ConductorTile extends ActionTile {
 
     private ActionTile connectedTo; // If connectedTo is not null then the conductor/wire is a via
 
-    protected ConductorTile(int posX, int posY, Color color) {
-        super(posX, posY, color, false);
+    protected ConductorTile(int posX, int posY, Color color, String name) {
+        super(posX, posY, color, name, false);
     }
 
     @Override

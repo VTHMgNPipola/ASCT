@@ -15,7 +15,7 @@ public class Transistor extends ConductorTile {
     private int poweredFromX = 0, poweredFromY = 0, conductingFromX, conductingFromY;
 
     public Transistor(int posX, int posY) {
-        super(posX, posY, new Color(103, 75, 120));
+        super(posX, posY, new Color(103, 75, 120), "Transistor");
         conductiveColor = new Color(220, 159, 255);
         meltingTemp = 1410f;
     }
