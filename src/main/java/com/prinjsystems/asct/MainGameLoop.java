@@ -107,7 +107,9 @@ public class MainGameLoop {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                display.tick();
+                if (!display.isPaused()) {
+                    display.tick();
+                }
             }
         }, 2000, (int) (1000 / TARGET_CLOCK_FREQUENCY));
 

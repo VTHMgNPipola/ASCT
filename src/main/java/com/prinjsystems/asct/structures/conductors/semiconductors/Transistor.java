@@ -29,6 +29,7 @@ public class Transistor extends ConductorTile {
         if (source != null && canReceivePower) {
             if (source instanceof NSilicon) {
                 conductive = true;
+                conductiveFor = 0;
                 conductingFromX = source.getPosX();
                 conductingFromY = source.getPosY();
             } else if (source instanceof PSilicon && conductive) {
@@ -44,6 +45,7 @@ public class Transistor extends ConductorTile {
         super.update();
         if (conductive) {
             if (++conductiveFor == conductiveDelay) {
+                canReceivePower = true;
                 conductive = false;
             }
         }

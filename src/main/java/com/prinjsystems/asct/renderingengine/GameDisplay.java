@@ -35,6 +35,8 @@ public class GameDisplay {
 
     private GameMap map;
 
+    private boolean paused = false;
+
     private Tile[] tiles = new Tile[]{new CopperConductor(0, 0), new NSilicon(0, 0),
             new PSilicon(0, 0), new Transistor(0, 0), new ToggleSwitch(0, 0),
             new Clock(0, 0), new RedPixel(0, 0), new Insulator(0, 0),
@@ -67,6 +69,20 @@ public class GameDisplay {
             @Override
             public void run() {
                 map.increaseLayer();
+            }
+        });
+        keyEvents.put(KeyEvent.VK_SPACE, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                paused = !paused;
+            }
+        });
+        keyEvents.put(KeyEvent.VK_Z, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                if (paused) {
+                    tick();
+                }
             }
         });
         // RIGHT and DOWN commands will decrease the translateX/translateY, so LEFT and UP need to check if
@@ -214,5 +230,9 @@ public class GameDisplay {
     public void destroy() {
         graphics.dispose();
         frame.dispose();
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 }
