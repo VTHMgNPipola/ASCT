@@ -94,10 +94,7 @@ public class GameDisplay {
             @Override
             public void run() {
                 if (camera.getTranslateX() < 0) {
-                    double scale = camera.getScaleX();
-                    camera.setToScale(1, 1);
-                    camera.translate(32, 0);
-                    camera.setToScale(scale, scale);
+                    camera.translate(32 / camera.getScaleX(), 0);
                 }
             }
         });
@@ -105,10 +102,7 @@ public class GameDisplay {
             @Override
             public void run() {
                 if ((camera.getTranslateX() + 32) / 32 < Layer.LAYER_SIZE) {
-                    double scale = camera.getScaleX();
-                    camera.setToScale(1, 1);
-                    camera.translate(-32, 0);
-                    camera.setToScale(scale, scale);
+                    camera.translate(-32 / camera.getScaleX(), 0);
                 }
             }
         });
@@ -116,10 +110,7 @@ public class GameDisplay {
             @Override
             public void run() {
                 if (camera.getTranslateY() < 0) {
-                    double scale = camera.getScaleX();
-                    camera.setToScale(1, 1);
-                    camera.translate(0, 32);
-                    camera.setToScale(scale, scale);
+                    camera.translate(0, 32 / camera.getScaleY());
                 }
             }
         });
@@ -127,10 +118,7 @@ public class GameDisplay {
             @Override
             public void run() {
                 if ((camera.getTranslateY() + 32) / 32 < Layer.LAYER_SIZE) {
-                    double scale = camera.getScaleX();
-                    camera.setToScale(1, 1);
-                    camera.translate(0, -32);
-                    camera.setToScale(scale, scale);
+                    camera.translate(0, -32 / camera.getScaleY());
                 }
             }
         });
