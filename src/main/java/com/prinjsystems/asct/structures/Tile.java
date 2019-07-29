@@ -1,7 +1,7 @@
 package com.prinjsystems.asct.structures;
 
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -82,7 +82,7 @@ public abstract class Tile implements Serializable {
         this.temp = temp;
     }
 
-    public abstract void render(Graphics g);
+    public abstract void render(Graphics2D g);
 
     public void update() {
         if (temp > meltingTemp) { // Is molten

@@ -2,14 +2,19 @@ package com.prinjsystems.asct.renderingengine;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.util.Map;
 import javax.swing.SwingUtilities;
 
 public class MouseHandler extends MouseAdapter {
     private Map<Integer, JMouseEvent> events;
+    public static final int MOUSE_WHEEL_UP = 1;
+    public static final int MOUSE_WHEEL_DOWN = 0;
+    private Map<Integer, JMouseEvent> wheelEvents;
 
-    public MouseHandler(Map<Integer, JMouseEvent> events) {
+    public MouseHandler(Map<Integer, JMouseEvent> events, Map<Integer, JMouseEvent> wheelEvents) {
         this.events = events;
+        this.wheelEvents = wheelEvents;
     }
 
     @Override
@@ -37,6 +42,17 @@ public class MouseHandler extends MouseAdapter {
         }
         JMouseEvent event = events.get(button);
         if (event != null && !event.isRunWhenReleased()) {
+            event.setX(e.getX());
+            event.setY(e.getY());
+            event.setClickCount(e.getClickCount());
+            event.run();
+        }
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        JMouseEvent event = wheelEvents.get(e.getWheelRotation() < 0 ? MOUSE_WHEEL_UP : MOUSE_WHEEL_DOWN);
+        if (event != null) {
             event.setX(e.getX());
             event.setY(e.getY());
             event.setClickCount(e.getClickCount());

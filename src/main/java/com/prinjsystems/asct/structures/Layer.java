@@ -1,7 +1,7 @@
 package com.prinjsystems.asct.structures;
 
 import com.prinjsystems.asct.structures.conductors.light.Pixel;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class Layer implements Serializable {
         }
     }
 
-    void render(Graphics g) {
+    void render(Graphics2D g) {
         for (Tile t : tiles) {
             if (t != null) {
                 t.render(g);

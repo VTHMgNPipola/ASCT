@@ -1,7 +1,7 @@
 package com.prinjsystems.asct.structures;
 
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public abstract class StaticTile extends Tile {
     private static final long serialVersionUID = -8394105447224475941L;
@@ -11,7 +11,7 @@ public abstract class StaticTile extends Tile {
     }
 
     @Override
-    public void render(Graphics g) {
+    public void render(Graphics2D g) {
         g.setColor(color);
         g.fillRect(getPosX() * TILE_SIZE, getPosY() * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }

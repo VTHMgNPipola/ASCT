@@ -1,6 +1,6 @@
 package com.prinjsystems.asct.structures;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,7 +14,7 @@ public class GameMap implements Serializable {
         this.layers = layers;
     }
 
-    public void render(Graphics g) {
+    public void render(Graphics2D g) {
         layers.get(currentLayer).render(g);
     }
 

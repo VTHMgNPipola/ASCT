@@ -1,9 +1,18 @@
 package com.prinjsystems.asct.renderingengine;
 
 import com.prinjsystems.asct.structures.GameMap;
+import com.prinjsystems.asct.structures.Insulator;
 import com.prinjsystems.asct.structures.Layer;
+import com.prinjsystems.asct.structures.ThermalConductor;
 import com.prinjsystems.asct.structures.Tile;
+import com.prinjsystems.asct.structures.conductors.AluminiumConductor;
+import com.prinjsystems.asct.structures.conductors.Clock;
 import com.prinjsystems.asct.structures.conductors.CopperConductor;
+import com.prinjsystems.asct.structures.conductors.light.RedPixel;
+import com.prinjsystems.asct.structures.conductors.semiconductors.NSilicon;
+import com.prinjsystems.asct.structures.conductors.semiconductors.PSilicon;
+import com.prinjsystems.asct.structures.conductors.semiconductors.ToggleSwitch;
+import com.prinjsystems.asct.structures.conductors.semiconductors.Transistor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -11,6 +20,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JFrame;
@@ -19,10 +30,16 @@ public class GameDisplay {
     private JFrame frame;
     private GamePanel panel;
     private Graphics2D graphics;
-    private AffineTransform camera;
+    private AffineTransform camera, identityTransform;
     private KeyboardHandler keyboardHandler;
 
     private GameMap map;
+
+    private Tile[] tiles = new Tile[]{new CopperConductor(0, 0), new NSilicon(0, 0),
+            new PSilicon(0, 0), new Transistor(0, 0), new ToggleSwitch(0, 0),
+            new Clock(0, 0), new RedPixel(0, 0), new Insulator(0, 0),
+            new ThermalConductor(0, 0), new AluminiumConductor(0, 0)};
+    private int currentTile = 0;
 
     public GameDisplay(Dimension resolution) {
         frame = new JFrame("Advanced Structure Creation Tool");
@@ -36,6 +53,8 @@ public class GameDisplay {
         frame.pack();
         frame.setLocationRelativeTo(null);
         camera = new AffineTransform();
+        identityTransform = new AffineTransform();
+        identityTransform.setToIdentity();
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
         keyEvents.put(KeyEvent.VK_PERIOD, new JKeyEvent(true) {
@@ -56,7 +75,10 @@ public class GameDisplay {
             @Override
             public void run() {
                 if (camera.getTranslateX() < 0) {
+                    double scale = camera.getScaleX();
+                    camera.setToScale(1, 1);
                     camera.translate(32, 0);
+                    camera.setToScale(scale, scale);
                 }
             }
         });
@@ -64,7 +86,10 @@ public class GameDisplay {
             @Override
             public void run() {
                 if ((camera.getTranslateX() + 32) / 32 < Layer.LAYER_SIZE) {
+                    double scale = camera.getScaleX();
+                    camera.setToScale(1, 1);
                     camera.translate(-32, 0);
+                    camera.setToScale(scale, scale);
                 }
             }
         });
@@ -72,7 +97,10 @@ public class GameDisplay {
             @Override
             public void run() {
                 if (camera.getTranslateY() < 0) {
+                    double scale = camera.getScaleX();
+                    camera.setToScale(1, 1);
                     camera.translate(0, 32);
+                    camera.setToScale(scale, scale);
                 }
             }
         });
@@ -80,36 +108,75 @@ public class GameDisplay {
             @Override
             public void run() {
                 if ((camera.getTranslateY() + 32) / 32 < Layer.LAYER_SIZE) {
+                    double scale = camera.getScaleX();
+                    camera.setToScale(1, 1);
                     camera.translate(0, -32);
+                    camera.setToScale(scale, scale);
                 }
             }
         });
-        keyboardHandler = new KeyboardHandler(keyEvents);
+        keyboardHandler = new KeyboardHandler(keyEvents, Collections.singletonList(KeyEvent.VK_CONTROL));
         frame.addKeyListener(keyboardHandler);
 
         Map<Integer, JMouseEvent> mouseEvents = new HashMap<>();
         mouseEvents.put(MouseEvent.BUTTON1, new JMouseEvent(false) {
             @Override
             public void run() {
-                int posX = (int) (getX() - camera.getTranslateX()) / Tile.TILE_SIZE;
-                int posY = (int) (getY() - camera.getTranslateY()) / Tile.TILE_SIZE;
-                Layer layer = map.getLayers().get(map.getCurrentLayer());
-                if (layer.getTile(posX, posY) == null) {
-                    layer.addTile(new CopperConductor(posX, posY));
+                int posX = (int) (((getX() - camera.getTranslateX()) / Tile.TILE_SIZE) / camera.getScaleX());
+                int posY = (int) (((getY() - camera.getTranslateY()) / Tile.TILE_SIZE) / camera.getScaleY());
+                if (posX >= 0 && posX <= Layer.LAYER_SIZE && posY >= 0 && posY <= Layer.LAYER_SIZE) {
+                    Layer layer = map.getLayers().get(map.getCurrentLayer());
+                    if (layer.getTile(posX, posY) == null) {
+                        try {
+                            layer.addTile(tiles[currentTile].getClass().getDeclaredConstructor(int.class, int.class)
+                                    .newInstance(posX, posY));
+                        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
+                                | InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         });
         mouseEvents.put(MouseEvent.BUTTON3, new JMouseEvent(false) {
             @Override
             public void run() {
-                map.getLayers().get(map.getCurrentLayer()).removeTile(
-                        (int) (getX() - camera.getTranslateX()) / Tile.TILE_SIZE,
-                        (int) (getY() - camera.getTranslateY()) / Tile.TILE_SIZE);
+                int posX = (int) (((getX() - camera.getTranslateX()) / Tile.TILE_SIZE) / camera.getScaleX());
+                int posY = (int) (((getY() - camera.getTranslateY()) / Tile.TILE_SIZE) / camera.getScaleY());
+                if (posX >= 0 && posX <= Layer.LAYER_SIZE && posY >= 0 && posY <= Layer.LAYER_SIZE) {
+                    map.getLayers().get(map.getCurrentLayer()).removeTile(posX, posY);
+                }
             }
         });
-        MouseHandler mouseHandler = new MouseHandler(mouseEvents);
+        HashMap<Integer, JMouseEvent> wheelEvents = new HashMap<>();
+        wheelEvents.put(MouseHandler.MOUSE_WHEEL_UP, new JMouseEvent(false) {
+            @Override
+            public void run() {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
+                    camera.scale(1.5f, 1.5f);
+                } else {
+                    if (++currentTile >= tiles.length) {
+                        currentTile = 0;
+                    }
+                }
+            }
+        });
+        wheelEvents.put(MouseHandler.MOUSE_WHEEL_DOWN, new JMouseEvent(false) {
+            @Override
+            public void run() {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
+                    camera.scale(0.5f, 0.5f);
+                } else {
+                    if (--currentTile < 0) {
+                        currentTile = tiles.length - 1;
+                    }
+                }
+            }
+        });
+        MouseHandler mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
         frame.addMouseListener(mouseHandler);
         panel.addMouseMotionListener(mouseHandler);
+        panel.addMouseWheelListener(mouseHandler);
     }
 
     public void setMap(GameMap map) {
@@ -126,8 +193,11 @@ public class GameDisplay {
     }
 
     public void render() {
+        graphics.setTransform(identityTransform);
         graphics.setColor(Color.black);
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
+        graphics.setColor(tiles[currentTile].getColor());
+        graphics.fillRect(4, panel.getHeight() - 36, 32, 32);
         graphics.setTransform(camera);
         map.render(graphics);
         panel.repaint();

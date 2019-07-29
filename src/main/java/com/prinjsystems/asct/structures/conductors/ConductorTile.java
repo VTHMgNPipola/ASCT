@@ -3,7 +3,7 @@ package com.prinjsystems.asct.structures.conductors;
 import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.Tile;
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public abstract class ConductorTile extends ActionTile {
     private static final long serialVersionUID = -1614333273624363555L;
@@ -39,7 +39,7 @@ public abstract class ConductorTile extends ActionTile {
     }
 
     @Override
-    public void render(Graphics g) {
+    public void render(Graphics2D g) {
         super.render(g);
         if (connectedTo != null) {
             g.setColor(new Color(255, 212, 0));
