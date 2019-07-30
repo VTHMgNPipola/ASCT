@@ -120,6 +120,18 @@ public class GameDisplay {
                 wiringMode = !wiringMode;
             }
         });
+        keyEvents.put(KeyEvent.VK_Q, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                goToPreviousTileIndex();
+            }
+        });
+        keyEvents.put(KeyEvent.VK_E, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                goToNextTileIndex();
+            }
+        });
         keyEvents.put(KeyEvent.VK_ADD, new JKeyEvent(true) {
             @Override
             public void run() {
