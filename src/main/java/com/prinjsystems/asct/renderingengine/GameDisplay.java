@@ -10,6 +10,21 @@ import com.prinjsystems.asct.structures.conductors.AluminiumConductor;
 import com.prinjsystems.asct.structures.conductors.Clock;
 import com.prinjsystems.asct.structures.conductors.CopperConductor;
 import com.prinjsystems.asct.structures.conductors.Spark;
+import com.prinjsystems.asct.structures.conductors.coloredwires.BlueWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.BrownWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.CyanWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.DarkBlueWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.DarkGrayWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.DarkGreenWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.DarkRedWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.GrayWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.GreenWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.LightOrangeWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.MagentaWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.OrangeWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.RedWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.WhiteWire;
+import com.prinjsystems.asct.structures.conductors.coloredwires.YellowWire;
 import com.prinjsystems.asct.structures.conductors.light.RedPixel;
 import com.prinjsystems.asct.structures.conductors.semiconductors.NSilicon;
 import com.prinjsystems.asct.structures.conductors.semiconductors.PSilicon;
@@ -40,14 +55,20 @@ public class GameDisplay {
 
     private GameMap map;
 
-    private boolean paused = false;
+    private boolean paused = false, wiringMode = false;
 
     private Tile[] tiles = new Tile[]{new Spark(), new CopperConductor(0, 0), new NSilicon(0, 0),
             new PSilicon(0, 0), new Transistor(0, 0), new ToggleSwitch(0, 0),
             new PermanentSwitch(0, 0), new Clock(0, 0), new RedPixel(0, 0),
             new Insulator(0, 0), new ThermalConductor(0, 0),
             new AluminiumConductor(0, 0)};
-    private int currentTile = 0;
+    private Tile[] wires = new Tile[]{new BlueWire(0, 0), new BrownWire(0, 0),
+            new CyanWire(0, 0), new DarkBlueWire(0, 0), new DarkGrayWire(0, 0),
+            new DarkGreenWire(0, 0), new DarkRedWire(0, 0), new GrayWire(0, 0),
+            new GreenWire(0, 0), new LightOrangeWire(0, 0), new MagentaWire(0, 0),
+            new OrangeWire(0, 0), new RedWire(0, 0), new WhiteWire(0, 0),
+            new YellowWire(0, 0)};
+    private int currentTile = 0, currentWire = 0;
 
     public GameDisplay(Dimension resolution) {
         frame = new JFrame("Advanced Structure Creation Tool");
@@ -66,16 +87,17 @@ public class GameDisplay {
         identityTransform.setToIdentity();
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
-        keyEvents.put(KeyEvent.VK_PERIOD, new JKeyEvent(true) {
-            @Override
-            public void run() {
-                map.decreaseLayer();
-            }
-        });
-        keyEvents.put(KeyEvent.VK_COMMA, new JKeyEvent(true) {
+        // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
+        keyEvents.put(KeyEvent.VK_PAGE_DOWN, new JKeyEvent(true) {
             @Override
             public void run() {
                 map.increaseLayer();
+            }
+        });
+        keyEvents.put(KeyEvent.VK_PAGE_UP, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                map.decreaseLayer();
             }
         });
         keyEvents.put(KeyEvent.VK_SPACE, new JKeyEvent(true) {
@@ -90,6 +112,33 @@ public class GameDisplay {
                 if (paused) {
                     tick();
                 }
+            }
+        });
+        keyEvents.put(KeyEvent.VK_W, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                wiringMode = !wiringMode;
+            }
+        });
+        keyEvents.put(KeyEvent.VK_ADD, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                map.getLayers().add(0, new Layer());
+                map.setCurrentLayer(0);
+            }
+        });
+        keyEvents.put(KeyEvent.VK_MINUS, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                map.getLayers().add(new Layer());
+                map.setCurrentLayer(map.getLayers().size() - 1);
+            }
+        });
+        keyEvents.put(KeyEvent.VK_F1, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                map.getLayers().remove(map.getCurrentLayer());
+                map.decreaseLayer();
             }
         });
         // RIGHT and DOWN commands will decrease the translateX/translateY, so LEFT and UP need to check if
@@ -137,14 +186,14 @@ public class GameDisplay {
                 int posY = (int) (((getY() - camera.getTranslateY()) / Tile.TILE_SIZE) / camera.getScaleY());
                 if (posX >= 0 && posX <= Layer.LAYER_SIZE && posY >= 0 && posY <= Layer.LAYER_SIZE) {
                     Layer layer = map.getLayers().get(map.getCurrentLayer());
-                    if (tiles[currentTile] instanceof Spark) {
+                    if (getCurrentTile() instanceof Spark) {
                         if (layer.getTile(posX, posY) instanceof ActionTile) {
                             ((ActionTile) layer.getTile(posX, posY)).trySetPowered(true, null);
                         }
                     } else {
                         if (layer.getTile(posX, posY) == null) {
                             try {
-                                layer.addTile(tiles[currentTile].getClass().getDeclaredConstructor(int.class, int.class)
+                                layer.addTile(getCurrentTile().getClass().getDeclaredConstructor(int.class, int.class)
                                         .newInstance(posX, posY));
                             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
                                     | InvocationTargetException e) {
@@ -172,7 +221,7 @@ public class GameDisplay {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
                     camera.scale(1.5f, 1.5f);
                 } else {
-                    currentTile = nextTileIndex();
+                    goToNextTileIndex();
                 }
             }
         });
@@ -182,7 +231,7 @@ public class GameDisplay {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
                     camera.scale(0.5f, 0.5f);
                 } else {
-                    currentTile = previousTileIndex();
+                    goToPreviousTileIndex();
                 }
             }
         });
@@ -210,24 +259,38 @@ public class GameDisplay {
         graphics.setColor(Color.black);
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
 
+        // Draw mode string
+        graphics.setColor(Color.WHITE);
+        graphics.drawString(wiringMode ? "WIRING" : "NORMAL", 4, panel.getHeight() - 40);
+
         // Draw current tile
-        graphics.setColor(tiles[currentTile].getColor());
+        graphics.setColor(getCurrentTile().getColor());
         graphics.fillRect(4, panel.getHeight() - 36, 32, 32);
         graphics.setFont(font);
-        graphics.drawString(tiles[currentTile].getName(), 38,
+        graphics.drawString(getCurrentTile().getName(), 38,
                 panel.getHeight() - 32 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
 
         // Draw next tile
-        graphics.setColor(tiles[nextTileIndex()].getColor());
+        graphics.setColor(getCurrentTile(getNextTileIndex()).getColor());
         graphics.fillRect(38, panel.getHeight() - 12, 8, 8);
         graphics.drawString("NEXT", 38,
                 panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
 
         // Draw previous tile
-        graphics.setColor(tiles[previousTileIndex()].getColor());
+        graphics.setColor(getCurrentTile(getPreviousTileIndex()).getColor());
         graphics.fillRect(graphics.getFontMetrics().stringWidth("NEXT") + 40, panel.getHeight() - 12, 8, 8);
         graphics.drawString("PREVIOUS", graphics.getFontMetrics().stringWidth("NEXT") + 40,
                 panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
+
+        // Draw layer indication
+        for (int i = 0; i < map.getLayers().size(); i++) {
+            if (map.getCurrentLayer() == i) {
+                graphics.setColor(Color.YELLOW);
+            } else {
+                graphics.setColor(Color.WHITE);
+            }
+            graphics.fillRect(panel.getWidth() - 34, 2 + i * 18, 32, 16);
+        }
 
         graphics.setTransform(camera);
         map.render(graphics);
@@ -251,17 +314,63 @@ public class GameDisplay {
         return paused;
     }
 
-    private int nextTileIndex() {
-        if (currentTile + 1 >= tiles.length) {
-            return 0;
+    private int getNextTileIndex() {
+        if (wiringMode) {
+            if (currentWire + 1 >= wires.length) {
+                return 0;
+            }
+            return currentWire + 1;
+        } else {
+            if (currentTile + 1 >= tiles.length) {
+                return 0;
+            }
+            return currentTile + 1;
         }
-        return currentTile + 1;
     }
 
-    private int previousTileIndex() {
-        if (currentTile == 0) {
-            return tiles.length - 1;
+    private int getPreviousTileIndex() {
+        if (wiringMode) {
+            if (currentWire == 0) {
+                return wires.length - 1;
+            }
+            return currentWire - 1;
+        } else {
+            if (currentTile == 0) {
+                return tiles.length - 1;
+            }
+            return currentTile - 1;
         }
-        return currentTile - 1;
+    }
+
+    private void goToNextTileIndex() {
+        if (wiringMode) {
+            if (++currentWire >= wires.length) {
+                currentWire = 0;
+            }
+        } else {
+            if (++currentTile >= tiles.length) {
+                currentTile = 0;
+            }
+        }
+    }
+
+    private void goToPreviousTileIndex() {
+        if (wiringMode) {
+            if (--currentWire < 0) {
+                currentWire = wires.length - 1;
+            }
+        } else {
+            if (--currentTile < 0) {
+                currentTile = tiles.length - 1;
+            }
+        }
+    }
+
+    private Tile getCurrentTile() {
+        return wiringMode ? wires[currentWire] : tiles[currentTile];
+    }
+
+    private Tile getCurrentTile(int index) {
+        return wiringMode ? wires[index] : tiles[index];
     }
 }

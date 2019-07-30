@@ -1,6 +1,5 @@
 package com.prinjsystems.asct.structures.conductors.coloredwires;
 
-import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.Tile;
 import com.prinjsystems.asct.structures.conductors.ConductorTile;
 import java.awt.Color;
@@ -15,6 +14,6 @@ public abstract class ColoredWire extends ConductorTile {
 
     @Override
     protected boolean isValid(Tile tile) {
-        return (tile instanceof ColoredWire && tile.getColor().equals(getColor())) || tile instanceof ActionTile;
+        return !(tile instanceof ColoredWire) || tile.getColor().equals(getColor());
     }
 }

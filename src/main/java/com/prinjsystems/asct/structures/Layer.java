@@ -28,6 +28,10 @@ public class Layer implements Serializable {
         }
     }
 
+    public Layer() {
+        this.tiles = new Tile[LAYER_SIZE * LAYER_SIZE];
+    }
+
     void render(Graphics2D g) {
         for (Tile t : tiles) {
             if (t != null) {
