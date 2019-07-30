@@ -31,10 +31,12 @@ import com.prinjsystems.asct.structures.conductors.semiconductors.PSilicon;
 import com.prinjsystems.asct.structures.conductors.semiconductors.PermanentSwitch;
 import com.prinjsystems.asct.structures.conductors.semiconductors.ToggleSwitch;
 import com.prinjsystems.asct.structures.conductors.semiconductors.Transistor;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -69,6 +71,9 @@ public class GameDisplay {
             new OrangeWire(0, 0), new RedWire(0, 0), new WhiteWire(0, 0),
             new YellowWire(0, 0)};
     private int currentTile = 0, currentWire = 0;
+
+    private float[] zooms = new float[]{0.25f, 0.5f, 1f, 1.5f, 2.25f, 3.375f, 5.0625f};
+    private int currZoom = 0;
 
     public GameDisplay(Dimension resolution) {
         frame = new JFrame("Advanced Structure Creation Tool");
@@ -230,9 +235,9 @@ public class GameDisplay {
         wheelEvents.put(MouseHandler.MOUSE_WHEEL_UP, new JMouseEvent(false) {
             @Override
             public void run() {
-                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
-                    camera.scale(1.5f, 1.5f);
-                } else {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom < zooms.length - 1) {
+                    camera.setToScale(zooms[++currZoom], zooms[currZoom]);
+                } else if (!keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
                     goToNextTileIndex();
                 }
             }
@@ -240,9 +245,9 @@ public class GameDisplay {
         wheelEvents.put(MouseHandler.MOUSE_WHEEL_DOWN, new JMouseEvent(false) {
             @Override
             public void run() {
-                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
-                    camera.scale(0.5f, 0.5f);
-                } else {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom > 0) {
+                    camera.setToScale(zooms[--currZoom], zooms[currZoom]);
+                } else if (!keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
                     goToPreviousTileIndex();
                 }
             }
@@ -270,6 +275,10 @@ public class GameDisplay {
         graphics.setTransform(identityTransform);
         graphics.setColor(Color.black);
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
+
+        // Draw paused string
+        graphics.setColor(Color.ORANGE);
+        graphics.drawString(paused ? "*PAUSED*" : "", 4, panel.getHeight() - 53);
 
         // Draw mode string
         graphics.setColor(Color.WHITE);
@@ -303,6 +312,19 @@ public class GameDisplay {
             }
             graphics.fillRect(panel.getWidth() - 34, 2 + i * 18, 32, 16);
         }
+
+        // Draw "zoom preview"
+        int zoomPreviewSize = (int) (Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2;
+        graphics.setColor(Color.WHITE);
+        graphics.drawString("ZOOM", panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 9 - zoomPreviewSize);
+        Stroke sb = graphics.getStroke();
+        graphics.setStroke(new BasicStroke(3));
+        graphics.drawRect(panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 5 - zoomPreviewSize,
+                zoomPreviewSize + 3, zoomPreviewSize + 3);
+        graphics.setColor(Color.GRAY);
+        graphics.fillRect(panel.getWidth() - 3 - zoomPreviewSize, panel.getHeight() - 3 - zoomPreviewSize,
+                (int) (Tile.TILE_SIZE * camera.getScaleX()) * 2, (int) (Tile.TILE_SIZE * camera.getScaleY()) * 2);
+        graphics.setStroke(sb);
 
         graphics.setTransform(camera);
         map.render(graphics);

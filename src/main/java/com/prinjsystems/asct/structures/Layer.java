@@ -1,5 +1,6 @@
 package com.prinjsystems.asct.structures;
 
+import com.prinjsystems.asct.structures.conductors.ConductorTile;
 import com.prinjsystems.asct.structures.conductors.light.Pixel;
 import java.awt.Graphics2D;
 import java.io.Serializable;
@@ -67,6 +68,13 @@ public class Layer implements Serializable {
     }
 
     public void removeTile(int posX, int posY) {
+        Tile t = getTile(posX, posY);
+        if (t instanceof ConductorTile && ((ConductorTile) t).getConnectedTo() != null) {
+            if (((ConductorTile) t).getConnectedTo() instanceof ConductorTile) {
+                ((ConductorTile) ((ConductorTile) t).getConnectedTo()).setConnectedTo(null);
+            }
+            ((ConductorTile) t).setConnectedTo(null);
+        }
         tiles[posX + posY * LAYER_SIZE] = null;
     }
 

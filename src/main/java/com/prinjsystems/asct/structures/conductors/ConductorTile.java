@@ -59,6 +59,10 @@ public abstract class ConductorTile extends ActionTile {
         powered = false;
     }
 
+    public ActionTile getConnectedTo() {
+        return connectedTo;
+    }
+
     public void setConnectedTo(ActionTile connectedTo) {
         if (connectedTo != null && connectedTo.getPosX() == posX && connectedTo.getPosY() == posY
                 && connectedTo != this) {
