@@ -8,6 +8,7 @@ import com.prinjsystems.asct.structures.ThermalConductor;
 import com.prinjsystems.asct.structures.Tile;
 import com.prinjsystems.asct.structures.conductors.AluminiumConductor;
 import com.prinjsystems.asct.structures.conductors.Clock;
+import com.prinjsystems.asct.structures.conductors.ConductorTile;
 import com.prinjsystems.asct.structures.conductors.CopperConductor;
 import com.prinjsystems.asct.structures.conductors.Spark;
 import com.prinjsystems.asct.structures.conductors.coloredwires.BlueWire;
@@ -42,7 +43,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JFrame;
@@ -192,7 +193,7 @@ public class GameDisplay {
                 }
             }
         });
-        keyboardHandler = new KeyboardHandler(keyEvents, Collections.singletonList(KeyEvent.VK_CONTROL));
+        keyboardHandler = new KeyboardHandler(keyEvents, Arrays.asList(KeyEvent.VK_CONTROL, KeyEvent.VK_SHIFT));
         frame.addKeyListener(keyboardHandler);
 
         Map<Integer, JMouseEvent> mouseEvents = new HashMap<>();
@@ -210,8 +211,24 @@ public class GameDisplay {
                     } else {
                         if (layer.getTile(posX, posY) == null) {
                             try {
-                                layer.addTile(getCurrentTile().getClass().getDeclaredConstructor(int.class, int.class)
-                                        .newInstance(posX, posY));
+                                Tile tile = getCurrentTile().getClass().getDeclaredConstructor(int.class, int.class)
+                                        .newInstance(posX, posY);
+                                layer.addTile(tile);
+                                if (keyboardHandler.isFlagActive(KeyEvent.VK_SHIFT) && tile instanceof ConductorTile) {
+                                    int layerIndex = map.getCurrentLayer() != map.getLayers().size() - 1 ?
+                                            map.getCurrentLayer() + 1 : -1;
+                                    if (layerIndex != -1) {
+                                        Tile connectedTile = map.getLayers().get(layerIndex).getTile(posX, posY);
+                                        if (connectedTile == null) {
+                                            connectedTile = getCurrentTile().getClass()
+                                                    .getDeclaredConstructor(int.class, int.class).newInstance(posX, posY);
+                                            map.getLayers().get(layerIndex).addTile(connectedTile);
+                                        }
+                                        if (connectedTile instanceof ActionTile) {
+                                            ((ConductorTile) tile).setConnectedTo((ActionTile) connectedTile);
+                                        }
+                                    }
+                                }
                             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
                                     | InvocationTargetException e) {
                                 e.printStackTrace();
