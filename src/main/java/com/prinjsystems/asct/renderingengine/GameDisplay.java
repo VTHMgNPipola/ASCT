@@ -55,6 +55,7 @@ public class GameDisplay {
     private AffineTransform camera, identityTransform;
     private Font font;
     private KeyboardHandler keyboardHandler;
+    private MouseHandler mouseHandler;
 
     private GameMap map;
 
@@ -275,7 +276,7 @@ public class GameDisplay {
                 }
             }
         });
-        MouseHandler mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
+        mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
         frame.addMouseListener(mouseHandler);
         panel.addMouseMotionListener(mouseHandler);
         panel.addMouseWheelListener(mouseHandler);
@@ -299,6 +300,15 @@ public class GameDisplay {
         graphics.setColor(Color.black);
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
 
+        // Draw tile ghost
+        int tileSize = (int) (Tile.TILE_SIZE * camera.getScaleX());
+        Color tileColor = getCurrentTile().getColor();
+        graphics.setColor(new Color(tileColor.getRed(), tileColor.getGreen(), tileColor.getBlue(), 127));
+        // This may seem way too much dumbness, but without the division the square wouldn't swap to the grid, and without
+        // the multiplication it wouldn't be under the cursor.
+        graphics.fillRect((mouseHandler.getMouseX() / tileSize) * tileSize,
+                (mouseHandler.getMouseY() / tileSize) * tileSize, tileSize, tileSize);
+
         // Draw paused string
         graphics.setColor(Color.ORANGE);
         graphics.drawString(paused ? "*PAUSED*" : "", 4, panel.getHeight() - 53);
@@ -308,20 +318,20 @@ public class GameDisplay {
         graphics.drawString(wiringMode ? "WIRING" : "NORMAL", 4, panel.getHeight() - 40);
 
         // Draw current tile
-        graphics.setColor(getCurrentTile().getColor());
+        graphics.setColor(tileColor);
         graphics.fillRect(4, panel.getHeight() - 36, 32, 32);
         graphics.setFont(font);
         graphics.drawString(getCurrentTile().getName(), 38,
                 panel.getHeight() - 32 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
 
         // Draw next tile
-        graphics.setColor(getCurrentTile(getNextTileIndex()).getColor());
+        graphics.setColor(getTile(getNextTileIndex()).getColor());
         graphics.fillRect(38, panel.getHeight() - 12, 8, 8);
         graphics.drawString("NEXT", 38,
                 panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
 
         // Draw previous tile
-        graphics.setColor(getCurrentTile(getPreviousTileIndex()).getColor());
+        graphics.setColor(getTile(getPreviousTileIndex()).getColor());
         graphics.fillRect(graphics.getFontMetrics().stringWidth("NEXT") + 40, panel.getHeight() - 12, 8, 8);
         graphics.drawString("PREVIOUS", graphics.getFontMetrics().stringWidth("NEXT") + 40,
                 panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
@@ -427,7 +437,7 @@ public class GameDisplay {
         return wiringMode ? wires[currentWire] : tiles[currentTile];
     }
 
-    private Tile getCurrentTile(int index) {
+    private Tile getTile(int index) {
         return wiringMode ? wires[index] : tiles[index];
     }
 }

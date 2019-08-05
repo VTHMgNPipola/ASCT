@@ -8,9 +8,11 @@ import javax.swing.SwingUtilities;
 
 public class MouseHandler extends MouseAdapter {
     private Map<Integer, JMouseEvent> events;
+    private Map<Integer, JMouseEvent> wheelEvents;
+    private int mouseX, mouseY;
+
     public static final int MOUSE_WHEEL_UP = 1;
     public static final int MOUSE_WHEEL_DOWN = 0;
-    private Map<Integer, JMouseEvent> wheelEvents;
 
     public MouseHandler(Map<Integer, JMouseEvent> events, Map<Integer, JMouseEvent> wheelEvents) {
         this.events = events;
@@ -40,13 +42,21 @@ public class MouseHandler extends MouseAdapter {
         } else if (SwingUtilities.isRightMouseButton(e)) {
             button = MouseEvent.BUTTON3;
         }
+        mouseX = e.getX();
+        mouseY = e.getY();
         JMouseEvent event = events.get(button);
         if (event != null && !event.isRunWhenReleased()) {
-            event.setX(e.getX());
-            event.setY(e.getY());
+            event.setX(mouseX);
+            event.setY(mouseY);
             event.setClickCount(e.getClickCount());
             event.run();
         }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        mouseX = e.getX();
+        mouseY = e.getY();
     }
 
     @Override
@@ -58,5 +68,13 @@ public class MouseHandler extends MouseAdapter {
             event.setClickCount(e.getClickCount());
             event.run();
         }
+    }
+
+    public int getMouseX() {
+        return mouseX;
+    }
+
+    public int getMouseY() {
+        return mouseY;
     }
 }
