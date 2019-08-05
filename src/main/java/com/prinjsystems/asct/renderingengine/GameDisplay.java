@@ -193,7 +193,7 @@ public class GameDisplay {
                 }
             }
         });
-        keyboardHandler = new KeyboardHandler(keyEvents, Arrays.asList(KeyEvent.VK_CONTROL, KeyEvent.VK_SHIFT));
+        keyboardHandler = new KeyboardHandler(keyEvents, Arrays.asList(KeyEvent.VK_CONTROL, KeyEvent.VK_SHIFT, KeyEvent.VK_ALT));
         frame.addKeyListener(keyboardHandler);
 
         Map<Integer, JMouseEvent> mouseEvents = new HashMap<>();
@@ -214,9 +214,15 @@ public class GameDisplay {
                                 Tile tile = getCurrentTile().getClass().getDeclaredConstructor(int.class, int.class)
                                         .newInstance(posX, posY);
                                 layer.addTile(tile);
-                                if (keyboardHandler.isFlagActive(KeyEvent.VK_SHIFT) && tile instanceof ConductorTile) {
-                                    int layerIndex = map.getCurrentLayer() != map.getLayers().size() - 1 ?
-                                            map.getCurrentLayer() + 1 : -1;
+                                if (keyboardHandler.isFlagActive(KeyEvent.VK_SHIFT)
+                                        || keyboardHandler.isFlagActive(KeyEvent.VK_ALT) && tile instanceof ConductorTile) {
+                                    int layerIndex = -1;
+                                    if (keyboardHandler.isFlagActive(KeyEvent.VK_SHIFT)) {
+                                        layerIndex = map.getCurrentLayer() != map.getLayers().size() - 1 ?
+                                                map.getCurrentLayer() + 1 : -1;
+                                    } else if (keyboardHandler.isFlagActive(KeyEvent.VK_ALT)) {
+                                        layerIndex = map.getCurrentLayer() != 0 ? map.getCurrentLayer() - 1 : -1;
+                                    }
                                     if (layerIndex != -1) {
                                         Tile connectedTile = map.getLayers().get(layerIndex).getTile(posX, posY);
                                         if (connectedTile == null) {
