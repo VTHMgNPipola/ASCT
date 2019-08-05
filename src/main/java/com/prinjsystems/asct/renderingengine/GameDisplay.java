@@ -30,10 +30,12 @@ import com.prinjsystems.asct.structures.conductors.light.RedPixel;
 import com.prinjsystems.asct.structures.conductors.semiconductors.ANDGate;
 import com.prinjsystems.asct.structures.conductors.semiconductors.NOTGate;
 import com.prinjsystems.asct.structures.conductors.semiconductors.NSilicon;
+import com.prinjsystems.asct.structures.conductors.semiconductors.ORGate;
 import com.prinjsystems.asct.structures.conductors.semiconductors.PSilicon;
 import com.prinjsystems.asct.structures.conductors.semiconductors.PermanentSwitch;
 import com.prinjsystems.asct.structures.conductors.semiconductors.ToggleSwitch;
 import com.prinjsystems.asct.structures.conductors.semiconductors.Transistor;
+import com.prinjsystems.asct.structures.conductors.semiconductors.XORGate;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -64,7 +66,8 @@ public class GameDisplay {
     private boolean paused = false, wiringMode = false;
 
     private Tile[] tiles = new Tile[]{new Spark(), new CopperConductor(0, 0), new NSilicon(0, 0),
-            new PSilicon(0, 0), new Transistor(0, 0), new ANDGate(0, 0), new NOTGate(0, 0),
+            new PSilicon(0, 0), new Transistor(0, 0), new ANDGate(0, 0),
+            new NOTGate(0, 0), new ORGate(0, 0), new XORGate(0, 0),
             new ToggleSwitch(0, 0), new PermanentSwitch(0, 0), new Clock(0, 0),
             new RedPixel(0, 0), new Insulator(0, 0), new ThermalConductor(0, 0),
             new AluminiumConductor(0, 0)};

@@ -16,7 +16,7 @@ public abstract class ActionTile extends Tile {
         this.powered = powered;
     }
 
-    protected boolean isPowered() {
+    public boolean isPowered() {
         return powered;
     }
 
