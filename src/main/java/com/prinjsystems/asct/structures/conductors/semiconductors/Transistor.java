@@ -31,6 +31,8 @@ public class Transistor extends ConductorTile {
             } else if (source instanceof PSilicon && conductive) {
                 super.trySetPowered(true, null);
             }
+        } else if (canReceivePower) {
+            super.trySetPowered(powered, null);
         }
     }
 

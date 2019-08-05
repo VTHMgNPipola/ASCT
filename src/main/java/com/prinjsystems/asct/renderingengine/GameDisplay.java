@@ -27,6 +27,8 @@ import com.prinjsystems.asct.structures.conductors.coloredwires.RedWire;
 import com.prinjsystems.asct.structures.conductors.coloredwires.WhiteWire;
 import com.prinjsystems.asct.structures.conductors.coloredwires.YellowWire;
 import com.prinjsystems.asct.structures.conductors.light.RedPixel;
+import com.prinjsystems.asct.structures.conductors.semiconductors.ANDGate;
+import com.prinjsystems.asct.structures.conductors.semiconductors.NOTGate;
 import com.prinjsystems.asct.structures.conductors.semiconductors.NSilicon;
 import com.prinjsystems.asct.structures.conductors.semiconductors.PSilicon;
 import com.prinjsystems.asct.structures.conductors.semiconductors.PermanentSwitch;
@@ -62,9 +64,9 @@ public class GameDisplay {
     private boolean paused = false, wiringMode = false;
 
     private Tile[] tiles = new Tile[]{new Spark(), new CopperConductor(0, 0), new NSilicon(0, 0),
-            new PSilicon(0, 0), new Transistor(0, 0), new ToggleSwitch(0, 0),
-            new PermanentSwitch(0, 0), new Clock(0, 0), new RedPixel(0, 0),
-            new Insulator(0, 0), new ThermalConductor(0, 0),
+            new PSilicon(0, 0), new Transistor(0, 0), new ANDGate(0, 0), new NOTGate(0, 0),
+            new ToggleSwitch(0, 0), new PermanentSwitch(0, 0), new Clock(0, 0),
+            new RedPixel(0, 0), new Insulator(0, 0), new ThermalConductor(0, 0),
             new AluminiumConductor(0, 0)};
     private Tile[] wires = new Tile[]{new BlueWire(0, 0), new BrownWire(0, 0),
             new CyanWire(0, 0), new DarkBlueWire(0, 0), new DarkGrayWire(0, 0),
@@ -306,8 +308,8 @@ public class GameDisplay {
         graphics.setColor(new Color(tileColor.getRed(), tileColor.getGreen(), tileColor.getBlue(), 127));
         // This may seem way too much dumbness, but without the division the square wouldn't swap to the grid, and without
         // the multiplication it wouldn't be under the cursor.
-        graphics.fillRect((mouseHandler.getMouseX() / tileSize) * tileSize,
-                (mouseHandler.getMouseY() / tileSize) * tileSize, tileSize, tileSize);
+        graphics.fillRect((mouseHandler.getMouseX() / tileSize) * tileSize + 4,
+                (mouseHandler.getMouseY() / tileSize) * tileSize + 2, tileSize, tileSize);
 
         // Draw paused string
         graphics.setColor(Color.ORANGE);

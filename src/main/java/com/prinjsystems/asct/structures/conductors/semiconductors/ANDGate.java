@@ -6,22 +6,26 @@ import java.awt.Color;
 public class ANDGate extends LogicGate {
     private static final long serialVersionUID = -326227518085991510L;
 
-    protected ANDGate(int posX, int posY) {
+    public ANDGate(int posX, int posY) {
         super(posX, posY, Color.white, "AND Gate");
     }
 
     @Override
     public void trySetPowered(boolean powered, Tile source) {
         if (source != null && canReceivePower) {
-            if (source instanceof NSilicon) {
-                conductive = true;
-                conductiveFor = 0;
+            if (source instanceof NSilicon && isAllConducting()) {
+                super.trySetPowered(true, null);
             }
         }
     }
 
-    @Override
-    protected boolean isValid(Tile tile) {
-        return !(tile instanceof NSilicon);
+    private boolean isAllConducting() {
+        Tile[] tilesAround = from.getTilesAround(posX, posY);
+        for (Tile t : tilesAround) {
+            if (t instanceof NSilicon && ((NSilicon) t).getUnpoweredFor() == 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

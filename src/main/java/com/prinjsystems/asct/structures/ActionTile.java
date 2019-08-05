@@ -9,7 +9,7 @@ public abstract class ActionTile extends Tile {
     protected int unpoweredDelay = 4;
     protected boolean canReceivePower = true;
     protected boolean powered;
-    private int unpoweredFor = 0;
+    protected int unpoweredFor = 0;
 
     protected ActionTile(int posX, int posY, Color color, String name, boolean powered) {
         super(posX, posY, color, name);
@@ -50,5 +50,9 @@ public abstract class ActionTile extends Tile {
                 unpoweredFor = 0;
             }
         }
+    }
+
+    public int getUnpoweredFor() {
+        return unpoweredFor;
     }
 }
