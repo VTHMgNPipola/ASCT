@@ -148,14 +148,13 @@ public class GameDisplay {
             @Override
             public void run() {
                 map.getLayers().add(0, new Layer());
-                map.setCurrentLayer(0);
+                map.increaseLayer();
             }
         });
-        keyEvents.put(KeyEvent.VK_MINUS, new JKeyEvent(true) {
+        keyEvents.put(KeyEvent.VK_SUBTRACT, new JKeyEvent(true) {
             @Override
             public void run() {
                 map.getLayers().add(new Layer());
-                map.setCurrentLayer(map.getLayers().size() - 1);
             }
         });
         keyEvents.put(KeyEvent.VK_F1, new JKeyEvent(true) {
