@@ -14,7 +14,7 @@ public abstract class Pixel extends ActionTile {
     private boolean spreading = true;
     private Color offColor;
 
-    protected Pixel(int posX, int posY, Color color, Color offColor, String name) {
+    Pixel(int posX, int posY, Color color, Color offColor, String name) {
         super(posX, posY, color, name, false);
         this.offColor = offColor;
     }
@@ -48,9 +48,8 @@ public abstract class Pixel extends ActionTile {
                 if (tile == null) {
                     continue;
                 }
-                Tile t = tile;
-                if (t instanceof Pixel) {
-                    ((Pixel) t).trySetPowered(powered, null);
+                if (tile instanceof Pixel && tile.getActualColor().equals(color)) {
+                    ((Pixel) tile).trySetPowered(powered, null);
                 }
             }
             spreading = false;

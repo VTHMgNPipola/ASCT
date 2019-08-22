@@ -14,6 +14,6 @@ public abstract class ColoredWire extends ConductorTile {
 
     @Override
     protected boolean isValid(Tile tile) {
-        return !(tile instanceof ColoredWire) || tile.getColor().equals(getColor());
+        return !(tile instanceof ColoredWire) || tile.getActualColor().equals(color);
     }
 }
