@@ -51,9 +51,17 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
 
@@ -67,6 +75,8 @@ public class GameDisplay {
     private MouseHandler mouseHandler;
 
     private GameMap map;
+
+    private File saveFile;
 
     private boolean paused = false, wiringMode = false;
 
@@ -103,6 +113,20 @@ public class GameDisplay {
         camera = new AffineTransform();
         identityTransform = new AffineTransform();
         identityTransform.setToIdentity();
+
+        saveFile = new File("save.ssf");
+
+        if (saveFile.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
+                map = ((GameMap) ois.readObject());
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            List<Layer> layers = new ArrayList<>();
+            layers.add(new Layer());
+            map = new GameMap(layers);
+        }
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
         // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
@@ -163,11 +187,23 @@ public class GameDisplay {
                 map.getLayers().add(new Layer());
             }
         });
-        keyEvents.put(KeyEvent.VK_F1, new JKeyEvent(true) {
+        keyEvents.put(KeyEvent.VK_DELETE, new JKeyEvent(true) {
             @Override
             public void run() {
                 map.getLayers().remove(map.getCurrentLayer());
                 map.decreaseLayer();
+            }
+        });
+        keyEvents.put(KeyEvent.VK_S, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
+                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFile))) {
+                        oos.writeObject(map);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
         // RIGHT and DOWN commands will decrease the translateX/translateY, so LEFT and UP need to check if
@@ -292,10 +328,6 @@ public class GameDisplay {
         panel.addMouseWheelListener(mouseHandler);
     }
 
-    public void setMap(GameMap map) {
-        this.map = map;
-    }
-
     public void setVisible(boolean visible) {
         frame.setVisible(visible);
         if (frame.isVisible()) { // If frame is really visible
@@ -380,11 +412,6 @@ public class GameDisplay {
 
     public void updateInputs() {
         keyboardHandler.tick();
-    }
-
-    public void destroy() {
-        graphics.dispose();
-        frame.dispose();
     }
 
     public boolean isPaused() {

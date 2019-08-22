@@ -1,7 +1,6 @@
 package com.prinjsystems.asct;
 
 import com.prinjsystems.asct.renderingengine.GameDisplay;
-import com.prinjsystems.asct.structures.GameMap;
 import com.prinjsystems.asct.structures.Layer;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -27,9 +26,6 @@ public class MainGameLoop {
         GameDisplay display = new GameDisplay(resolution);
 
         List<Layer> layers = new ArrayList<>();
-        layers.add(new Layer());
-        GameMap map = new GameMap(layers);
-        display.setMap(map);
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
