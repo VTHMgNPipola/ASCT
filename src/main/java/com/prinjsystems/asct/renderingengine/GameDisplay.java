@@ -329,7 +329,7 @@ public class GameDisplay {
                 }
             }
         });
-        mouseHandler = new MouseHandler(mouseEvents, wheelEvents, uiComponents);
+        mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
         MouseAdapter uiListener = new MouseAdapter() {
             @Override
             @SuppressWarnings("unchecked")

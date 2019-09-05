@@ -1,6 +1,5 @@
 package com.prinjsystems.asct.renderingengine.ui;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -46,7 +45,7 @@ public class Button extends UIComponent<MouseEvent> {
         graphics.fillRect(posXDef, posYDef, widthDef, heightDef);
 
         // Draw border
-        graphics.setStroke(new BasicStroke(2));
+        graphics.setStroke(THICK_STROKE);
         graphics.setColor(borderColor);
         graphics.drawRect(posXDef, posYDef, widthDef, heightDef);
 

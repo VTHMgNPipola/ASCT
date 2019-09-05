@@ -1,9 +1,14 @@
 package com.prinjsystems.asct.renderingengine.ui;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.event.InputEvent;
 
 public abstract class UIComponent<E extends InputEvent> {
+    protected final Stroke BASIC_STROKE = new BasicStroke(1);
+    protected final Stroke THICK_STROKE = new BasicStroke(2);
+
     protected float posX, posY, width, height;
     private Class<E> genericsType;
 
