@@ -34,6 +34,7 @@ import com.prinjsystems.asct.structures.conductors.light.RedPixel;
 import com.prinjsystems.asct.structures.conductors.light.WhitePixel;
 import com.prinjsystems.asct.structures.conductors.light.YellowPixel;
 import com.prinjsystems.asct.structures.conductors.semiconductors.ANDGate;
+import com.prinjsystems.asct.structures.conductors.semiconductors.NORGate;
 import com.prinjsystems.asct.structures.conductors.semiconductors.NOTGate;
 import com.prinjsystems.asct.structures.conductors.semiconductors.NSilicon;
 import com.prinjsystems.asct.structures.conductors.semiconductors.ORGate;
@@ -85,11 +86,12 @@ public class GameDisplay {
 
     private Tile[] tiles = new Tile[]{new Spark(), new CopperConductor(0, 0), new NSilicon(0, 0),
             new PSilicon(0, 0), new Transistor(0, 0), new ANDGate(0, 0),
-            new NOTGate(0, 0), new ORGate(0, 0), new XORGate(0, 0),
-            new ToggleSwitch(0, 0), new PermanentSwitch(0, 0), new Clock(0, 0),
-            new Insulator(0, 0), new ThermalConductor(0, 0), new AluminiumConductor(0, 0),
-            new RedPixel(0, 0), new GreenPixel(0, 0), new BluePixel(0, 0),
-            new YellowPixel(0, 0), new CyanPixel(0, 0), new WhitePixel(0, 0)};
+            new NOTGate(0, 0), new ORGate(0, 0), new NORGate(0, 0),
+            new XORGate(0, 0), new ToggleSwitch(0, 0), new PermanentSwitch(0, 0),
+            new Clock(0, 0), new Insulator(0, 0), new ThermalConductor(0, 0),
+            new AluminiumConductor(0, 0), new RedPixel(0, 0), new GreenPixel(0, 0),
+            new BluePixel(0, 0), new YellowPixel(0, 0), new CyanPixel(0, 0),
+            new WhitePixel(0, 0)};
     private Tile[] wires = new Tile[]{new BlueWire(0, 0), new BrownWire(0, 0),
             new CyanWire(0, 0), new DarkBlueWire(0, 0), new DarkGrayWire(0, 0),
             new DarkGreenWire(0, 0), new DarkRedWire(0, 0), new GrayWire(0, 0),
