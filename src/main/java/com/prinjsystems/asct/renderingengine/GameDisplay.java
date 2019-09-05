@@ -49,6 +49,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -248,7 +249,21 @@ public class GameDisplay {
             }
         });
         keyboardHandler = new KeyboardHandler(keyEvents, Arrays.asList(KeyEvent.VK_CONTROL, KeyEvent.VK_SHIFT, KeyEvent.VK_ALT));
+
+        KeyAdapter uiKeyListener = new KeyAdapter() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void keyTyped(KeyEvent e) {
+                for (UIComponent uiComponent : uiComponents) {
+                    if (uiComponent.getGenericsType().equals(KeyEvent.class)) {
+                        uiComponent.update(e, KeyEvent.KEY_TYPED);
+                    }
+                }
+            }
+        };
+
         frame.addKeyListener(keyboardHandler);
+        frame.addKeyListener(uiKeyListener);
 
         Map<Integer, JMouseEvent> mouseEvents = new HashMap<>();
         mouseEvents.put(MouseEvent.BUTTON1, new JMouseEvent(false) {
@@ -330,7 +345,7 @@ public class GameDisplay {
             }
         });
         mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
-        MouseAdapter uiListener = new MouseAdapter() {
+        MouseAdapter uiMouseListener = new MouseAdapter() {
             @Override
             @SuppressWarnings("unchecked")
             public void mousePressed(MouseEvent e) {
@@ -354,7 +369,7 @@ public class GameDisplay {
             }
         };
         frame.addMouseListener(mouseHandler);
-        panel.addMouseListener(uiListener);
+        panel.addMouseListener(uiMouseListener);
         panel.addMouseMotionListener(mouseHandler);
         panel.addMouseWheelListener(mouseHandler);
     }

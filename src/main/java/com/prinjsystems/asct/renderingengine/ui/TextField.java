@@ -29,16 +29,17 @@ public class TextField extends UIComponent<KeyEvent> {
 
     @Override
     public void render(Graphics2D graphics) {
+        graphics.setFont(Label.DEFAULT_FONT);
         graphics.setColor(color);
         graphics.setStroke(THICK_STROKE);
         graphics.drawRect((int) posX, (int) posY, (int) width, (int) height);
         graphics.setColor(Color.LIGHT_GRAY);
-        graphics.drawString(text.toString(), posX, posY);
+        graphics.drawString(text.toString(), posX + 3, posY + graphics.getFontMetrics().getAscent());
     }
 
     @Override
     public void update(KeyEvent evt, int mode) {
-        if (evt.getKeyCode() != KeyEvent.VK_BACK_SPACE) {
+        if (evt.getKeyChar() != 8) {
             text.append(evt.getKeyChar());
         } else {
             text.deleteCharAt(text.length() - 1);
