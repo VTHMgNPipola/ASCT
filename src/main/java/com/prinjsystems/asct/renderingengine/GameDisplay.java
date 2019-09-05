@@ -1,6 +1,5 @@
 package com.prinjsystems.asct.renderingengine;
 
-import com.prinjsystems.asct.renderingengine.ui.Button;
 import com.prinjsystems.asct.renderingengine.ui.UIComponent;
 import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.GameMap;
@@ -133,7 +132,6 @@ public class GameDisplay {
         }
 
         uiComponents = new ArrayList<>();
-        uiComponents.add(new Button("Test", 10, 10, 200, 50));
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
         // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
