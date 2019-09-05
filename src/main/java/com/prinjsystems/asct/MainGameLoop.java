@@ -1,10 +1,7 @@
 package com.prinjsystems.asct;
 
 import com.prinjsystems.asct.renderingengine.GameDisplay;
-import com.prinjsystems.asct.structures.Layer;
 import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,8 +21,6 @@ public class MainGameLoop {
         }
 
         GameDisplay display = new GameDisplay(resolution);
-
-        List<Layer> layers = new ArrayList<>();
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {

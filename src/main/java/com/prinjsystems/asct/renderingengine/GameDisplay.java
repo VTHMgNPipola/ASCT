@@ -1,5 +1,7 @@
 package com.prinjsystems.asct.renderingengine;
 
+import com.prinjsystems.asct.renderingengine.ui.Button;
+import com.prinjsystems.asct.renderingengine.ui.UIComponent;
 import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.GameMap;
 import com.prinjsystems.asct.structures.Insulator;
@@ -48,6 +50,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -75,6 +78,7 @@ public class GameDisplay {
     private MouseHandler mouseHandler;
 
     private GameMap map;
+    private List<UIComponent> uiComponents;
 
     private File saveFile;
 
@@ -127,6 +131,9 @@ public class GameDisplay {
             layers.add(new Layer());
             map = new GameMap(layers);
         }
+
+        uiComponents = new ArrayList<>();
+        uiComponents.add(new Button("Test", 10, 10, 200, 50));
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
         // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
@@ -322,8 +329,32 @@ public class GameDisplay {
                 }
             }
         });
-        mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
+        mouseHandler = new MouseHandler(mouseEvents, wheelEvents, uiComponents);
+        MouseAdapter uiListener = new MouseAdapter() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void mousePressed(MouseEvent e) {
+                for (UIComponent uiComponent : uiComponents) {
+                    if (uiComponent.getGenericsType().equals(MouseEvent.class)
+                            && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getWidth()) {
+                        uiComponent.update(e, MouseEvent.MOUSE_PRESSED);
+                    }
+                }
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public void mouseReleased(MouseEvent e) {
+                for (UIComponent uiComponent : uiComponents) {
+                    if (uiComponent.getGenericsType().equals(MouseEvent.class)
+                            && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getWidth()) {
+                        uiComponent.update(e, MouseEvent.MOUSE_RELEASED);
+                    }
+                }
+            }
+        };
         frame.addMouseListener(mouseHandler);
+        panel.addMouseListener(uiListener);
         panel.addMouseMotionListener(mouseHandler);
         panel.addMouseWheelListener(mouseHandler);
     }
@@ -400,6 +431,11 @@ public class GameDisplay {
         graphics.fillRect(panel.getWidth() - 3 - zoomPreviewSize, panel.getHeight() - 3 - zoomPreviewSize,
                 (int) (Tile.TILE_SIZE * camera.getScaleX()) * 2, (int) (Tile.TILE_SIZE * camera.getScaleY()) * 2);
         graphics.setStroke(sb);
+
+        // Draw UI components
+        for (UIComponent component : uiComponents) {
+            component.render(graphics);
+        }
 
         graphics.setTransform(camera);
         map.render(graphics);

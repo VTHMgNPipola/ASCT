@@ -1,22 +1,27 @@
 package com.prinjsystems.asct.renderingengine;
 
+import com.prinjsystems.asct.renderingengine.ui.UIComponent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.List;
 import java.util.Map;
 import javax.swing.SwingUtilities;
 
 public class MouseHandler extends MouseAdapter {
     private Map<Integer, JMouseEvent> events;
     private Map<Integer, JMouseEvent> wheelEvents;
+    private List<UIComponent> uiComponents;
     private int mouseX, mouseY;
 
     public static final int MOUSE_WHEEL_UP = 1;
     public static final int MOUSE_WHEEL_DOWN = 0;
 
-    public MouseHandler(Map<Integer, JMouseEvent> events, Map<Integer, JMouseEvent> wheelEvents) {
+    public MouseHandler(Map<Integer, JMouseEvent> events, Map<Integer, JMouseEvent> wheelEvents,
+                        List<UIComponent> uiComponents) {
         this.events = events;
         this.wheelEvents = wheelEvents;
+        this.uiComponents = uiComponents;
     }
 
     @Override
