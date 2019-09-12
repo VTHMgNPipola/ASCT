@@ -15,7 +15,7 @@ public class Transistor extends ConductorTile {
     public Transistor(int posX, int posY) {
         super(posX, posY, new Color(103, 75, 120), "Transistor");
         conductiveColor = new Color(220, 159, 255);
-        meltingTemp = 1410f;
+        meltingTemp = 140f;
     }
 
     public boolean isConductive() {
