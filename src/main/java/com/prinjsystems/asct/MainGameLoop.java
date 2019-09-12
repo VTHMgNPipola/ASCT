@@ -4,10 +4,11 @@ import com.prinjsystems.asct.renderingengine.GameDisplay;
 import java.awt.Dimension;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.JOptionPane;
 
 public class MainGameLoop {
     private static final float TARGET_FPS = 30f;
-    private static final float TARGET_CLOCK_FREQUENCY = 30f; // Frequency in Hertz
+    private static float targetClockFrequency = 30f; // Frequency in Hertz
 
     public static void main(String[] args) {
         Dimension resolution = new Dimension(1280, 768);
@@ -23,14 +24,6 @@ public class MainGameLoop {
         GameDisplay display = new GameDisplay(resolution);
 
         Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (!display.isPaused()) {
-                    display.tick();
-                }
-            }
-        }, 2000, (int) (1000 / TARGET_CLOCK_FREQUENCY));
 
         display.setVisible(true);
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -40,5 +33,27 @@ public class MainGameLoop {
                 display.updateInputs();
             }
         }, 0, (int) (1000 / TARGET_FPS));
+
+        Thread tickThread = new Thread(() -> {
+            try {
+                while (!display.isWindowClosing()) {
+                    display.tick();
+                    Thread.sleep((int) (1000 / targetClockFrequency));
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error waiting for tick!");
+            }
+        });
+
+        tickThread.start();
+    }
+
+    public static float getTargetClockFrequency() {
+        return targetClockFrequency;
+    }
+
+    public static void setTargetClockFrequency(float targetClockFrequency) {
+        MainGameLoop.targetClockFrequency = targetClockFrequency;
     }
 }

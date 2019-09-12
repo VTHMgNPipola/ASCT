@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 
 public class TextField extends UIComponent<KeyEvent> {
+    private String acceptsOnly;
     private StringBuilder text;
     private Color color;
 
@@ -40,10 +41,17 @@ public class TextField extends UIComponent<KeyEvent> {
     @Override
     public void update(KeyEvent evt, int mode) {
         if (evt.getKeyChar() != 8) {
+            if (acceptsOnly != null && !String.valueOf(evt.getKeyChar()).matches(acceptsOnly)) {
+                return;
+            }
             text.append(evt.getKeyChar());
-        } else {
+        } else if (text.length() > 0) {
             text.deleteCharAt(text.length() - 1);
         }
+    }
+
+    public void setAcceptsOnly(String acceptsOnly) {
+        this.acceptsOnly = acceptsOnly;
     }
 
     public String getText() {

@@ -1,5 +1,9 @@
 package com.prinjsystems.asct.renderingengine;
 
+import com.prinjsystems.asct.MainGameLoop;
+import com.prinjsystems.asct.renderingengine.ui.Button;
+import com.prinjsystems.asct.renderingengine.ui.Label;
+import com.prinjsystems.asct.renderingengine.ui.TextField;
 import com.prinjsystems.asct.renderingengine.ui.UIComponent;
 import com.prinjsystems.asct.structures.ActionTile;
 import com.prinjsystems.asct.structures.GameMap;
@@ -53,7 +57,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,6 +75,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class GameDisplay {
     private JFrame frame;
@@ -84,6 +92,7 @@ public class GameDisplay {
     private File saveFile;
 
     private boolean paused = false, wiringMode = false;
+    private boolean windowClosing = false;
 
     private Tile[] tiles = new Tile[]{new Spark(), new CopperConductor(0, 0), new NSilicon(0, 0),
             new PSilicon(0, 0), new Transistor(0, 0), new ANDGate(0, 0),
@@ -135,6 +144,34 @@ public class GameDisplay {
         }
 
         uiComponents = new ArrayList<>();
+
+        String frequencyLabelText = "Current frequency: %sHz";
+        Label frequencyLabel = new Label(String.format(frequencyLabelText, MainGameLoop.getTargetClockFrequency()),
+                new Rectangle2D.Float(frame.getWidth() - 209, 5, 150, 15));
+        uiComponents.add(frequencyLabel);
+
+        TextField frequencyField = new TextField(new Rectangle2D.Float(frequencyLabel.getPosX(),
+                frequencyLabel.getPosY() + frequencyLabel.getHeight() + 10,
+                frequencyLabel.getWidth(), 25));
+        frequencyField.setAcceptsOnly("[0-9]");
+        uiComponents.add(frequencyField);
+
+        Button setFrequencyButton = new Button("Set Frequency", new Rectangle2D.Float(frequencyField.getPosX(),
+                frequencyField.getPosY() + frequencyField.getHeight() + 10, frequencyField.getWidth(),
+                frequencyField.getHeight()));
+        setFrequencyButton.setAction(() -> {
+            float frequency;
+            try {
+                frequency = Float.parseFloat(frequencyField.getText().replace(",", "."));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, "The frequency has to be a number!");
+                return;
+            }
+            MainGameLoop.setTargetClockFrequency(frequency);
+            frequencyField.setText("");
+            frequencyLabel.setText(String.format(frequencyLabelText, MainGameLoop.getTargetClockFrequency()));
+        });
+        uiComponents.add(setFrequencyButton);
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
         // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
@@ -351,7 +388,8 @@ public class GameDisplay {
             public void mousePressed(MouseEvent e) {
                 for (UIComponent uiComponent : uiComponents) {
                     if (uiComponent.getGenericsType().equals(MouseEvent.class)
-                            && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getWidth()) {
+                            && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
+                            && e.getY() > uiComponent.getPosY() && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
                         uiComponent.update(e, MouseEvent.MOUSE_PRESSED);
                     }
                 }
@@ -362,7 +400,8 @@ public class GameDisplay {
             public void mouseReleased(MouseEvent e) {
                 for (UIComponent uiComponent : uiComponents) {
                     if (uiComponent.getGenericsType().equals(MouseEvent.class)
-                            && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getWidth()) {
+                            && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
+                            && e.getY() > uiComponent.getPosY() && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
                         uiComponent.update(e, MouseEvent.MOUSE_RELEASED);
                     }
                 }
@@ -372,6 +411,13 @@ public class GameDisplay {
         panel.addMouseListener(uiMouseListener);
         panel.addMouseMotionListener(mouseHandler);
         panel.addMouseWheelListener(mouseHandler);
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                windowClosing = true;
+            }
+        });
     }
 
     public void setVisible(boolean visible) {
@@ -447,13 +493,15 @@ public class GameDisplay {
                 (int) (Tile.TILE_SIZE * camera.getScaleX()) * 2, (int) (Tile.TILE_SIZE * camera.getScaleY()) * 2);
         graphics.setStroke(sb);
 
+        graphics.setTransform(camera);
+        map.render(graphics);
+
         // Draw UI components
+        graphics.setTransform(identityTransform);
         for (UIComponent component : uiComponents) {
             component.render(graphics);
         }
 
-        graphics.setTransform(camera);
-        map.render(graphics);
         panel.repaint();
     }
 
@@ -467,6 +515,10 @@ public class GameDisplay {
 
     public boolean isPaused() {
         return paused;
+    }
+
+    public boolean isWindowClosing() {
+        return windowClosing;
     }
 
     private int getNextTileIndex() {
