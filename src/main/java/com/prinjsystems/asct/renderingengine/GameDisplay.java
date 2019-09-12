@@ -47,12 +47,10 @@ import com.prinjsystems.asct.structures.conductors.semiconductors.PermanentSwitc
 import com.prinjsystems.asct.structures.conductors.semiconductors.ToggleSwitch;
 import com.prinjsystems.asct.structures.conductors.semiconductors.Transistor;
 import com.prinjsystems.asct.structures.conductors.semiconductors.XORGate;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Stroke;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -484,15 +482,14 @@ public class GameDisplay {
         int zoomPreviewSize = (int) (Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2;
         graphics.setColor(Color.WHITE);
         graphics.drawString("ZOOM", panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 9 - zoomPreviewSize);
-        Stroke sb = graphics.getStroke();
-        graphics.setStroke(new BasicStroke(3));
+        graphics.setStroke(UIComponent.THICK_STROKE);
         graphics.drawRect(panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 5 - zoomPreviewSize,
                 zoomPreviewSize + 3, zoomPreviewSize + 3);
         graphics.setColor(Color.GRAY);
         graphics.fillRect(panel.getWidth() - 3 - zoomPreviewSize, panel.getHeight() - 3 - zoomPreviewSize,
                 (int) (Tile.TILE_SIZE * camera.getScaleX()) * 2, (int) (Tile.TILE_SIZE * camera.getScaleY()) * 2);
-        graphics.setStroke(sb);
 
+        graphics.setStroke(UIComponent.BASIC_STROKE);
         graphics.setTransform(camera);
         map.render(graphics);
 
