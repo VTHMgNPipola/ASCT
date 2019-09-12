@@ -301,7 +301,7 @@ public class GameDisplay {
         frame.addKeyListener(uiKeyListener);
 
         Map<Integer, JMouseEvent> mouseEvents = new HashMap<>();
-        mouseEvents.put(MouseEvent.BUTTON1, new JMouseEvent(false) {
+        JMouseEvent placeTile = new JMouseEvent(false) {
             @Override
             public void run() {
                 int posX = (int) (((getX() - camera.getTranslateX()) / Tile.TILE_SIZE) / camera.getScaleX());
@@ -347,7 +347,8 @@ public class GameDisplay {
                     }
                 }
             }
-        });
+        };
+        mouseEvents.put(MouseEvent.BUTTON1, placeTile);
         mouseEvents.put(MouseEvent.BUTTON3, new JMouseEvent(false) {
             @Override
             public void run() {
@@ -384,6 +385,9 @@ public class GameDisplay {
             @Override
             @SuppressWarnings("unchecked")
             public void mousePressed(MouseEvent e) {
+                placeTile.setX(e.getX());
+                placeTile.setY(e.getY());
+                placeTile.run();
                 for (UIComponent uiComponent : uiComponents) {
                     if (uiComponent.getGenericsType().equals(MouseEvent.class)
                             && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
