@@ -20,10 +20,10 @@ tiles **per layer***!
 
 ## Development
 
-As you may see the game is pretty much unusable, but I'll be adding more
-and more stuff, and at some point I want to add modding support through
-a Java library.
+In its current state, you can do very little with the game.
+I already discovered that a memory cell is possible for example
+(and so should be a memory block, since it is just memory cells "glued"
+together), but there isn't much more.
 
-This project have the risk of being abandoned in early development
-stage, so if you're reading this after 2020 or so that's probably what
-happened.
+I will create a Java library that will accommodate the Tile class
+and the basic structure around it, so that modding is possible.
