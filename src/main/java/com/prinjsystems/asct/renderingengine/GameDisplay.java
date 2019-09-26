@@ -488,8 +488,9 @@ public class GameDisplay {
         graphics.drawRect(panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 5 - zoomPreviewSize,
                 zoomPreviewSize + 3, zoomPreviewSize + 3);
         graphics.setColor(Color.GRAY);
-        graphics.fillRect(panel.getWidth() - 3 - zoomPreviewSize, panel.getHeight() - 3 - zoomPreviewSize,
-                (int) (Tile.TILE_SIZE * camera.getScaleX()) * 2, (int) (Tile.TILE_SIZE * camera.getScaleY()) * 2);
+        graphics.fillRect(panel.getWidth() - 4 - zoomPreviewSize, panel.getHeight() - 4 - zoomPreviewSize,
+                ((int) (Tile.TILE_SIZE * camera.getScaleX()) * 2) + 1,
+                ((int) (Tile.TILE_SIZE * camera.getScaleY()) * 2) + 1);
 
         graphics.setStroke(UIComponent.BASIC_STROKE);
         graphics.setTransform(camera);
