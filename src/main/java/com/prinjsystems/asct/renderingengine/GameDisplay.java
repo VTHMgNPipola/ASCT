@@ -437,13 +437,11 @@ public class GameDisplay {
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
 
         // Draw tile ghost
-        int tileSize = (int) (Tile.TILE_SIZE * camera.getScaleX());
+        double tileSize = Tile.TILE_SIZE * camera.getScaleX();
         Color tileColor = getCurrentTile().getColor();
         graphics.setColor(new Color(tileColor.getRed(), tileColor.getGreen(), tileColor.getBlue(), 127));
-        // This may seem way too much dumbness, but without the division the square wouldn't swap to the grid, and without
-        // the multiplication it wouldn't be under the cursor.
-        graphics.fillRect((mouseHandler.getMouseX() / tileSize) * tileSize + 4,
-                (mouseHandler.getMouseY() / tileSize) * tileSize + 2, tileSize, tileSize);
+        graphics.fillRect((int) (mouseHandler.getMouseX() - (mouseHandler.getMouseX() % tileSize)),
+                (int) (mouseHandler.getMouseY() - (mouseHandler.getMouseY() % tileSize)), (int) tileSize, (int) tileSize);
 
         // Draw paused string
         graphics.setColor(Color.ORANGE);
