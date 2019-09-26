@@ -78,8 +78,10 @@ public class Panel extends UIComponent {
     @Override
     public void update(MouseEvent evt, int mode) {
         for (UIComponent component : components) {
-            if (evt.getX() > component.getPosX() && evt.getX() < component.getPosX() + component.getWidth()
-                    && evt.getY() > component.getPosY() && evt.getY() < component.getPosY() + component.getHeight()) {
+            int eventX = (int) (evt.getX() - posX);
+            int eventY = (int) (evt.getY() - posY);
+            if (eventX > component.getPosX() && eventX < component.getPosX() + component.getWidth()
+                    && eventY > component.getPosY() && eventY < component.getPosY() + component.getHeight()) {
                 component.setFocused(true);
                 component.update(evt, mode);
             } else {

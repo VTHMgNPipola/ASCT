@@ -161,7 +161,16 @@ public class GameDisplay {
         int savePanelWidth = 160, savePanelHeight = 90;
         @SuppressWarnings("IntegerDivisionInFloatingPointContext")
         Panel savePanel = new Panel(new Rectangle2D.Float((frame.getWidth() / 2) - (savePanelWidth / 2),
-                (frame.getHeight() / 2) - (savePanelHeight / 2), savePanelWidth, savePanelHeight));
+                (frame.getHeight() / 2) - (savePanelHeight / 2), savePanelWidth, savePanelHeight)) {
+            @Override
+            public void update(KeyEvent evt, int mode) {
+                if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    setVisible(false);
+                    setFocused(false);
+                }
+                super.update(evt, mode);
+            }
+        };
         savePanel.addComponent(new Label("Save A.S.C.T. Simulation", new Rectangle2D.Float(5, 5, 0, 0)));
 
         Label filenameLabel = new Label("Filename", new Rectangle2D.Float(5, 25, 0, 0));
@@ -191,7 +200,10 @@ public class GameDisplay {
         // Those are some pretty precise and weird numbers, but they're the only that works
         Button saveButton = new Button("Save", new Rectangle2D.Float(frame.getWidth() - 61,
                 frame.getHeight() - 56, 43, 15));
-        saveButton.setAction(() -> savePanel.setVisible(true));
+        saveButton.setAction(() -> {
+            savePanel.setVisible(true);
+            savePanel.setFocused(true);
+        });
         uiComponents.add(saveButton);
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
