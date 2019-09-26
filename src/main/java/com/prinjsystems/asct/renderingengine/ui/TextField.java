@@ -3,28 +3,25 @@ package com.prinjsystems.asct.renderingengine.ui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
-public class TextField extends UIComponent<KeyEvent> {
+public class TextField extends UIComponent {
     private String acceptsOnly;
     private StringBuilder text;
     private Color color;
 
-    public TextField(String defaultText, Color color, Rectangle2D bounds) {
-        super(KeyEvent.class);
+    public TextField(String defaultText, Color color, Rectangle2D.Float bounds) {
+        super(bounds);
         this.text = new StringBuilder(defaultText);
         this.color = color;
-        this.posX = (float) bounds.getX();
-        this.posY = (float) bounds.getY();
-        this.width = (float) bounds.getWidth();
-        this.height = (float) bounds.getHeight();
     }
 
-    public TextField(String defaultText, Rectangle2D bounds) {
+    public TextField(String defaultText, Rectangle2D.Float bounds) {
         this(defaultText, Color.DARK_GRAY, bounds);
     }
 
-    public TextField(Rectangle2D bounds) {
+    public TextField(Rectangle2D.Float bounds) {
         this("", bounds);
     }
 
@@ -36,6 +33,11 @@ public class TextField extends UIComponent<KeyEvent> {
         graphics.drawRect((int) posX, (int) posY, (int) width, (int) height);
         graphics.setColor(Color.LIGHT_GRAY);
         graphics.drawString(text.toString(), posX + 3, posY + graphics.getFontMetrics().getAscent());
+    }
+
+    @Override
+    public void update(MouseEvent evt, int mode) {
+        // No action
     }
 
     @Override

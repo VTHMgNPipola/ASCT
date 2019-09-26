@@ -3,6 +3,7 @@ package com.prinjsystems.asct.renderingengine;
 import com.prinjsystems.asct.MainGameLoop;
 import com.prinjsystems.asct.renderingengine.ui.Button;
 import com.prinjsystems.asct.renderingengine.ui.Label;
+import com.prinjsystems.asct.renderingengine.ui.Panel;
 import com.prinjsystems.asct.renderingengine.ui.TextField;
 import com.prinjsystems.asct.renderingengine.ui.UIComponent;
 import com.prinjsystems.asct.structures.ActionTile;
@@ -61,10 +62,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOError;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -86,8 +86,6 @@ public class GameDisplay {
 
     private GameMap map;
     private List<UIComponent> uiComponents;
-
-    private File saveFile;
 
     private boolean paused = false, wiringMode = false;
     private boolean windowClosing = false;
@@ -127,19 +125,9 @@ public class GameDisplay {
         identityTransform = new AffineTransform();
         identityTransform.setToIdentity();
 
-        saveFile = new File("save.ssf");
-
-        if (saveFile.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
-                map = ((GameMap) ois.readObject());
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            List<Layer> layers = new ArrayList<>();
-            layers.add(new Layer());
-            map = new GameMap(layers);
-        }
+        List<Layer> layers = new ArrayList<>();
+        layers.add(new Layer());
+        map = new GameMap(layers);
 
         uiComponents = new ArrayList<>();
 
@@ -166,10 +154,45 @@ public class GameDisplay {
                 return;
             }
             MainGameLoop.setTargetClockFrequency(frequency);
-            frequencyField.setText("");
             frequencyLabel.setText(String.format(frequencyLabelText, MainGameLoop.getTargetClockFrequency()));
         });
         uiComponents.add(setFrequencyButton);
+
+        int savePanelWidth = 160, savePanelHeight = 90;
+        @SuppressWarnings("IntegerDivisionInFloatingPointContext")
+        Panel savePanel = new Panel(new Rectangle2D.Float((frame.getWidth() / 2) - (savePanelWidth / 2),
+                (frame.getHeight() / 2) - (savePanelHeight / 2), savePanelWidth, savePanelHeight));
+        savePanel.addComponent(new Label("Save A.S.C.T. Simulation", new Rectangle2D.Float(5, 5, 0, 0)));
+
+        Label filenameLabel = new Label("Filename", new Rectangle2D.Float(5, 25, 0, 0));
+        savePanel.addComponent(filenameLabel);
+        TextField filename = new TextField(new Rectangle2D.Float(5, filenameLabel.getPosY() + 20, 150, 20));
+        savePanel.addComponent(filename);
+
+        Button save = new Button("Save", new Rectangle2D.Float(5, filename.getPosY() + 25, 50, 15));
+        save.setAction(() -> {
+            String filenameWithExtension = filename.getText() + (filename.getText().endsWith(".ssf") ? "" : ".ssf");
+            File outputFile = new File("/saves/" + filenameWithExtension);
+            if (!outputFile.mkdirs()) {
+                throw new IOError(new IOException("Unable to create 'saves' directory!"));
+            }
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputFile))) {
+                oos.writeObject(map);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            savePanel.setVisible(false);
+        });
+        savePanel.addComponent(save);
+
+        savePanel.setVisible(false);
+        uiComponents.add(savePanel);
+
+        // Those are some pretty precise and weird numbers, but they're the only that works
+        Button saveButton = new Button("Save", new Rectangle2D.Float(frame.getWidth() - 61,
+                frame.getHeight() - 56, 43, 15));
+        saveButton.setAction(() -> savePanel.setVisible(true));
+        uiComponents.add(saveButton);
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
         // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
@@ -241,11 +264,7 @@ public class GameDisplay {
             @Override
             public void run() {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
-                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFile))) {
-                        oos.writeObject(map);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    savePanel.setVisible(true);
                 }
             }
         });
@@ -290,7 +309,7 @@ public class GameDisplay {
             @SuppressWarnings("unchecked")
             public void keyTyped(KeyEvent e) {
                 for (UIComponent uiComponent : uiComponents) {
-                    if (uiComponent.getGenericsType().equals(KeyEvent.class)) {
+                    if (uiComponent.isFocused()) {
                         uiComponent.update(e, KeyEvent.KEY_TYPED);
                     }
                 }
@@ -389,10 +408,12 @@ public class GameDisplay {
                 placeTile.setY(e.getY());
                 placeTile.run();
                 for (UIComponent uiComponent : uiComponents) {
-                    if (uiComponent.getGenericsType().equals(MouseEvent.class)
-                            && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
+                    if (e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
                             && e.getY() > uiComponent.getPosY() && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
+                        uiComponent.setFocused(true);
                         uiComponent.update(e, MouseEvent.MOUSE_PRESSED);
+                    } else {
+                        uiComponent.setFocused(false);
                     }
                 }
             }
@@ -401,10 +422,12 @@ public class GameDisplay {
             @SuppressWarnings("unchecked")
             public void mouseReleased(MouseEvent e) {
                 for (UIComponent uiComponent : uiComponents) {
-                    if (uiComponent.getGenericsType().equals(MouseEvent.class)
-                            && e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
+                    if (e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
                             && e.getY() > uiComponent.getPosY() && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
+                        uiComponent.setFocused(true);
                         uiComponent.update(e, MouseEvent.MOUSE_RELEASED);
+                    } else {
+                        uiComponent.setFocused(false);
                     }
                 }
             }
@@ -483,12 +506,12 @@ public class GameDisplay {
         // Draw "zoom preview"
         int zoomPreviewSize = (int) (Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2;
         graphics.setColor(Color.WHITE);
-        graphics.drawString("ZOOM", panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 9 - zoomPreviewSize);
+        graphics.drawString("ZOOM", panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 29 - zoomPreviewSize);
         graphics.setStroke(UIComponent.THICK_STROKE);
-        graphics.drawRect(panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 5 - zoomPreviewSize,
+        graphics.drawRect(panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 25 - zoomPreviewSize,
                 zoomPreviewSize + 3, zoomPreviewSize + 3);
         graphics.setColor(Color.GRAY);
-        graphics.fillRect(panel.getWidth() - 4 - zoomPreviewSize, panel.getHeight() - 4 - zoomPreviewSize,
+        graphics.fillRect(panel.getWidth() - 4 - zoomPreviewSize, panel.getHeight() - 24 - zoomPreviewSize,
                 ((int) (Tile.TILE_SIZE * camera.getScaleX()) * 2) + 1,
                 ((int) (Tile.TILE_SIZE * camera.getScaleY()) * 2) + 1);
 
@@ -499,7 +522,9 @@ public class GameDisplay {
         // Draw UI components
         graphics.setTransform(identityTransform);
         for (UIComponent component : uiComponents) {
-            component.render(graphics);
+            if (!(component instanceof Panel) || ((Panel) component).isVisible()) {
+                component.render(graphics);
+            }
         }
 
         panel.repaint();

@@ -3,28 +3,25 @@ package com.prinjsystems.asct.renderingengine.ui;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
-public class Button extends UIComponent<MouseEvent> {
+public class Button extends UIComponent {
     private String text;
     private Color color, borderColor;
 
     private boolean pressed;
     private Runnable action;
 
-    public Button(String text, Rectangle2D bounds, Color color, Color borderColor) {
-        super(MouseEvent.class);
+    public Button(String text, Rectangle2D.Float bounds, Color color, Color borderColor) {
+        super(bounds);
         this.text = text;
-        posX = (float) bounds.getX();
-        posY = (float) bounds.getY();
-        width = (float) bounds.getWidth();
-        height = (float) bounds.getHeight();
         this.color = color;
         this.borderColor = borderColor;
     }
 
-    public Button(String text, Rectangle2D bounds) {
+    public Button(String text, Rectangle2D.Float bounds) {
         this(text, bounds, Color.LIGHT_GRAY, Color.DARK_GRAY);
     }
 
@@ -64,6 +61,11 @@ public class Button extends UIComponent<MouseEvent> {
         if (!pressed && action != null) {
             action.run();
         }
+    }
+
+    @Override
+    public void update(KeyEvent evt, int mode) {
+        // No action
     }
 
     public String getText() {
