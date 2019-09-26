@@ -8,15 +8,16 @@ describes what is my aim with this "game".
 In this game, inspired by The Powder Toy (referred as TPT in this
 document), you can create electronic circuits that do all kinds of
 stuff, but without all the hassle that creating such devices in real
-life have.
+life have. But it has several limitations.
 
 Unlike TPT, the A.S.C.T. "world" is composed of layers. Each layer may
-have a size of 512x512, 1024x1024, 2048x2048, and even more tiles.
+have a size x, and the layer will have size x^2.
 
-If you allocate enough RAM for it, a maximum theoretical size of more
-than 32768x32768 can be reached, though I never could test that (my
-computer does not have enough RAM). That's more than *1 **billion**
-tiles **per layer***!   
+The maximum size for an array in Java is the maximum integer value, that
+is 2,147,483,647. To get the maximum size, you just need to get the integer
+square root of that number, that is 46,340. A layer this big gives you
+2,147,483,600 tiles to work with (more than 2 billion tiles). And that
+for a single layer.
 
 ## Development
 
@@ -25,5 +26,5 @@ I already discovered that a memory cell is possible for example
 (and so should be a memory block, since it is just memory cells "glued"
 together), but there isn't much more.
 
-I will create a Java library that will accommodate the Tile class
+I will soon create a Java library that will accommodate the Tile class
 and the basic structure around it, so that modding is possible.
