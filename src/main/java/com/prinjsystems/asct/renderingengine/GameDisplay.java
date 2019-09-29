@@ -131,9 +131,10 @@ public class GameDisplay {
 
         uiComponents = new ArrayList<>();
 
+        /* FREQUENCY SELECTOR START */
         String frequencyLabelText = "Current frequency: %sHz";
         Label frequencyLabel = new Label(String.format(frequencyLabelText, MainGameLoop.getTargetClockFrequency()),
-                new Rectangle2D.Float(frame.getWidth() - 209, 5, 150, 15));
+                new Rectangle2D.Float(frame.getWidth() - 230, 5, 150, 15));
         uiComponents.add(frequencyLabel);
 
         TextField frequencyField = new TextField(new Rectangle2D.Float(frequencyLabel.getPosX(),
@@ -157,7 +158,9 @@ public class GameDisplay {
             frequencyLabel.setText(String.format(frequencyLabelText, MainGameLoop.getTargetClockFrequency()));
         });
         uiComponents.add(setFrequencyButton);
+        /* FREQUENCY SELECTOR END */
 
+        /* SAVE PANEL START */
         int savePanelWidth = 160, savePanelHeight = 90;
         @SuppressWarnings("IntegerDivisionInFloatingPointContext")
         Panel savePanel = new Panel(new Rectangle2D.Float((frame.getWidth() / 2) - (savePanelWidth / 2),
@@ -194,12 +197,21 @@ public class GameDisplay {
         });
         savePanel.addComponent(save);
 
+        int cancelSavePosX = (int) (save.getPosX() + save.getWidth() + 5);
+        Button cancelSave = new Button("Cancel", new Rectangle2D.Float(cancelSavePosX, save.getPosY(),
+                savePanelWidth - cancelSavePosX - 5, 15));
+        cancelSave.setAction(() -> {
+            savePanel.setFocused(false);
+            savePanel.setVisible(false);
+        });
+        savePanel.addComponent(cancelSave);
+
         savePanel.setVisible(false);
         uiComponents.add(savePanel);
+        /* SAVE PANEL END */
 
-        // Those are some pretty precise and weird numbers, but they're the only that works
-        Button saveButton = new Button("Save", new Rectangle2D.Float(frame.getWidth() - 61,
-                frame.getHeight() - 56, 43, 15));
+        Button saveButton = new Button("Save", new Rectangle2D.Float(frame.getWidth() - 55,
+                frame.getHeight() - 48, 43, 15));
         saveButton.setAction(() -> {
             savePanel.setVisible(true);
             savePanel.setFocused(true);
@@ -314,11 +326,11 @@ public class GameDisplay {
                 }
             }
         });
-        keyboardHandler = new KeyboardHandler(keyEvents, Arrays.asList(KeyEvent.VK_CONTROL, KeyEvent.VK_SHIFT, KeyEvent.VK_ALT));
+        keyboardHandler = new KeyboardHandler(keyEvents, Arrays.asList(KeyEvent.VK_CONTROL, KeyEvent.VK_SHIFT,
+                KeyEvent.VK_ALT));
 
         KeyAdapter uiKeyListener = new KeyAdapter() {
             @Override
-            @SuppressWarnings("unchecked")
             public void keyTyped(KeyEvent e) {
                 for (UIComponent uiComponent : uiComponents) {
                     if (uiComponent.isFocused()) {
@@ -414,34 +426,18 @@ public class GameDisplay {
         mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
         MouseAdapter uiMouseListener = new MouseAdapter() {
             @Override
-            @SuppressWarnings("unchecked")
             public void mousePressed(MouseEvent e) {
-                placeTile.setX(e.getX());
-                placeTile.setY(e.getY());
-                placeTile.run();
-                for (UIComponent uiComponent : uiComponents) {
-                    if (e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
-                            && e.getY() > uiComponent.getPosY() && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
-                        uiComponent.setFocused(true);
-                        uiComponent.update(e, MouseEvent.MOUSE_PRESSED);
-                    } else {
-                        uiComponent.setFocused(false);
-                    }
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    placeTile.setX(e.getX());
+                    placeTile.setY(e.getY());
+                    placeTile.run();
                 }
+                updateComponents(e, MouseEvent.MOUSE_PRESSED);
             }
 
             @Override
-            @SuppressWarnings("unchecked")
             public void mouseReleased(MouseEvent e) {
-                for (UIComponent uiComponent : uiComponents) {
-                    if (e.getX() > uiComponent.getPosX() && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
-                            && e.getY() > uiComponent.getPosY() && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
-                        uiComponent.setFocused(true);
-                        uiComponent.update(e, MouseEvent.MOUSE_RELEASED);
-                    } else {
-                        uiComponent.setFocused(false);
-                    }
-                }
+                updateComponents(e, MouseEvent.MOUSE_RELEASED);
             }
         };
         frame.addMouseListener(mouseHandler);
@@ -501,7 +497,8 @@ public class GameDisplay {
 
         // Draw previous tile
         graphics.setColor(getTile(getPreviousTileIndex()).getColor());
-        graphics.fillRect(graphics.getFontMetrics().stringWidth("NEXT") + 40, panel.getHeight() - 12, 8, 8);
+        graphics.fillRect(graphics.getFontMetrics().stringWidth("NEXT") + 40, panel.getHeight() - 12,
+                8, 8);
         graphics.drawString("PREVIOUS", graphics.getFontMetrics().stringWidth("NEXT") + 40,
                 panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
 
@@ -518,7 +515,8 @@ public class GameDisplay {
         // Draw "zoom preview"
         int zoomPreviewSize = (int) (Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2;
         graphics.setColor(Color.WHITE);
-        graphics.drawString("ZOOM", panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 29 - zoomPreviewSize);
+        graphics.drawString("ZOOM", panel.getWidth() - 5 - zoomPreviewSize,
+                panel.getHeight() - 29 - zoomPreviewSize);
         graphics.setStroke(UIComponent.THICK_STROKE);
         graphics.drawRect(panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 25 - zoomPreviewSize,
                 zoomPreviewSize + 3, zoomPreviewSize + 3);
@@ -548,10 +546,6 @@ public class GameDisplay {
 
     public void updateInputs() {
         keyboardHandler.tick();
-    }
-
-    public boolean isPaused() {
-        return paused;
     }
 
     public boolean isWindowClosing() {
@@ -616,5 +610,23 @@ public class GameDisplay {
 
     private Tile getTile(int index) {
         return wiringMode ? wires[index] : tiles[index];
+    }
+
+    private void updateComponents(MouseEvent e, int mode) {
+        boolean activatedComponent = false;
+        for (int i = uiComponents.size() - 1; i > 0; i--) {
+            UIComponent uiComponent = uiComponents.get(i);
+            if (!activatedComponent
+                    && e.getX() > uiComponent.getPosX()
+                    && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
+                    && e.getY() > uiComponent.getPosY()
+                    && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
+                uiComponent.setFocused(true);
+                uiComponent.update(e, mode);
+                activatedComponent = true;
+            } else {
+                uiComponent.setFocused(false);
+            }
+        }
     }
 }
