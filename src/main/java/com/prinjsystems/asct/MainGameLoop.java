@@ -1,12 +1,10 @@
 package com.prinjsystems.asct;
 
 import com.prinjsystems.asct.renderingengine.GameDisplay;
-import com.prinjsystems.asct.structures.Insulator;
 import com.prinjsystems.asctlib.ASCTMod;
 import com.prinjsystems.asctlib.PlaceableTile;
 import com.prinjsystems.asctlib.structures.Tile;
 import java.awt.Dimension;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Set;
@@ -24,11 +22,6 @@ public class MainGameLoop extends ASCTMod {
         Reflections reflections = new Reflections("");
         for (Class<? extends ASCTMod> mod : reflections.getSubTypesOf(ASCTMod.class)) {
             mod.getDeclaredConstructor().newInstance().startup();
-        }
-
-        Class<?> insulator = Insulator.class;
-        for (Annotation annotation : insulator.getAnnotations()) {
-            System.out.println(annotation.annotationType().getName());
         }
 
         Set<Class<?>> annotatedTiles = reflections.getTypesAnnotatedWith(PlaceableTile.class);
