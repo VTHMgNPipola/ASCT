@@ -451,7 +451,7 @@ public class GameDisplay {
         // Draw paused string
         graphics.setColor(Color.ORANGE);
         graphics.drawString(paused ? "*PAUSED*" : "", 4,
-                panel.getHeight() - graphics.getFontMetrics().getHeight() - 4);
+                panel.getHeight() - graphics.getFontMetrics().getHeight() - 60);
 
         // Draw layer indication
         for (int i = 0; i < map.getLayers().size(); i++) {
@@ -510,6 +510,10 @@ public class GameDisplay {
 
     public boolean isWindowClosing() {
         return windowClosing;
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 
     public Tile getCurrentTile() {

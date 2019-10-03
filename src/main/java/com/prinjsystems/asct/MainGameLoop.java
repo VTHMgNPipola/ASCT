@@ -92,7 +92,9 @@ public class MainGameLoop extends ASCTMod {
         Thread tickThread = new Thread(() -> {
             try {
                 while (!display.isWindowClosing()) {
-                    display.tick();
+                    if (!display.isPaused()) {
+                        display.tick();
+                    }
                     Thread.sleep((int) (1000 / targetClockFrequency));
                 }
             } catch (InterruptedException e) {
