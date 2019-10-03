@@ -1,10 +1,16 @@
 package com.prinjsystems.asct.structures.conductors.semiconductors;
 
-import com.prinjsystems.asct.structures.ActionTile;
-import com.prinjsystems.asct.structures.Tile;
+import com.prinjsystems.asctlib.PlaceableTile;
+import com.prinjsystems.asctlib.structures.ActionTile;
+import com.prinjsystems.asctlib.structures.Tile;
+import com.prinjsystems.asctlib.structures.conductors.semiconductors.LogicGate;
+import com.prinjsystems.asctlib.structures.conductors.semiconductors.NSilicon;
 import java.awt.Color;
 
+@PlaceableTile
 public class XORGate extends LogicGate {
+    private static final long serialVersionUID = -6241453379926218849L;
+
     public XORGate(int posX, int posY) {
         super(posX, posY, Color.CYAN, "XOR Gate");
     }

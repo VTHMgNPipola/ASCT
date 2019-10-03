@@ -1,7 +1,10 @@
 package com.prinjsystems.asct.structures.conductors.light;
 
+import com.prinjsystems.asctlib.PlaceableTile;
+import com.prinjsystems.asctlib.structures.conductors.light.Pixel;
 import java.awt.Color;
 
+@PlaceableTile
 public class GreenPixel extends Pixel {
     private static final long serialVersionUID = 6661620588007136293L;
 

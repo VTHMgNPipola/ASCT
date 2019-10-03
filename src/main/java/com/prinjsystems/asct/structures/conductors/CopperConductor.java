@@ -1,7 +1,10 @@
 package com.prinjsystems.asct.structures.conductors;
 
+import com.prinjsystems.asctlib.PlaceableTile;
+import com.prinjsystems.asctlib.structures.conductors.ConductorTile;
 import java.awt.Color;
 
+@PlaceableTile
 public class CopperConductor extends ConductorTile {
     private static final long serialVersionUID = -8365509623662001747L;
 

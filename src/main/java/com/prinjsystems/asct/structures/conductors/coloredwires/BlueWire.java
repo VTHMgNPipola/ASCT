@@ -1,7 +1,9 @@
 package com.prinjsystems.asct.structures.conductors.coloredwires;
 
+import com.prinjsystems.asctlib.PlaceableTile;
 import java.awt.Color;
 
+@PlaceableTile
 public class BlueWire extends ColoredWire {
     private static final long serialVersionUID = 4714253428846656035L;
 

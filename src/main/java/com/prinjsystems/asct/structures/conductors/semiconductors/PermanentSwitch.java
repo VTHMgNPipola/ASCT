@@ -1,9 +1,14 @@
 package com.prinjsystems.asct.structures.conductors.semiconductors;
 
-import com.prinjsystems.asct.structures.ActionTile;
-import com.prinjsystems.asct.structures.Tile;
+import com.prinjsystems.asctlib.PlaceableTile;
+import com.prinjsystems.asctlib.structures.ActionTile;
+import com.prinjsystems.asctlib.structures.Tile;
+import com.prinjsystems.asctlib.structures.conductors.semiconductors.NSilicon;
+import com.prinjsystems.asctlib.structures.conductors.semiconductors.PSilicon;
+import com.prinjsystems.asctlib.structures.conductors.semiconductors.Transistor;
 import java.awt.Color;
 
+@PlaceableTile
 public class PermanentSwitch extends Transistor {
     private static final long serialVersionUID = -7951692775675457336L;
 

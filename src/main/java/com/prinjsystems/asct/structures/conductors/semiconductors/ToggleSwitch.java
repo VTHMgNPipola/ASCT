@@ -1,9 +1,13 @@
 package com.prinjsystems.asct.structures.conductors.semiconductors;
 
-import com.prinjsystems.asct.structures.Tile;
-import com.prinjsystems.asct.structures.conductors.ConductorTile;
+import com.prinjsystems.asctlib.PlaceableTile;
+import com.prinjsystems.asctlib.structures.Tile;
+import com.prinjsystems.asctlib.structures.conductors.ConductorTile;
+import com.prinjsystems.asctlib.structures.conductors.semiconductors.NSilicon;
+import com.prinjsystems.asctlib.structures.conductors.semiconductors.PSilicon;
 import java.awt.Color;
 
+@PlaceableTile
 public class ToggleSwitch extends ConductorTile {
     private static final long serialVersionUID = -7099513109699412277L;
 
@@ -19,7 +23,7 @@ public class ToggleSwitch extends ConductorTile {
     }
 
     @Override
-    protected void run(Tile tile) {
+    protected void spread(Tile tile) {
         if (powerP && tile instanceof PSilicon) {
             ((PSilicon) tile).trySetPowered(powered, this);
         } else if (!powerP && tile instanceof NSilicon) {
@@ -28,8 +32,8 @@ public class ToggleSwitch extends ConductorTile {
     }
 
     @Override
-    protected void postRun() {
-        super.postRun();
+    protected void postSpread() {
+        super.postSpread();
         powerP = !powerP;
     }
 }

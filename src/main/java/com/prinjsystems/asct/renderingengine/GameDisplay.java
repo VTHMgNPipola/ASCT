@@ -6,48 +6,12 @@ import com.prinjsystems.asct.renderingengine.ui.Label;
 import com.prinjsystems.asct.renderingengine.ui.Panel;
 import com.prinjsystems.asct.renderingengine.ui.TextField;
 import com.prinjsystems.asct.renderingengine.ui.UIComponent;
-import com.prinjsystems.asct.structures.ActionTile;
-import com.prinjsystems.asct.structures.GameMap;
-import com.prinjsystems.asct.structures.Insulator;
-import com.prinjsystems.asct.structures.Layer;
-import com.prinjsystems.asct.structures.ThermalConductor;
-import com.prinjsystems.asct.structures.Tile;
-import com.prinjsystems.asct.structures.conductors.AluminiumConductor;
-import com.prinjsystems.asct.structures.conductors.Clock;
-import com.prinjsystems.asct.structures.conductors.ConductorTile;
-import com.prinjsystems.asct.structures.conductors.CopperConductor;
 import com.prinjsystems.asct.structures.conductors.Spark;
-import com.prinjsystems.asct.structures.conductors.coloredwires.BlueWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.BrownWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.CyanWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.DarkBlueWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.DarkGrayWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.DarkGreenWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.DarkRedWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.GrayWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.GreenWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.LightOrangeWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.MagentaWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.OrangeWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.RedWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.WhiteWire;
-import com.prinjsystems.asct.structures.conductors.coloredwires.YellowWire;
-import com.prinjsystems.asct.structures.conductors.light.BluePixel;
-import com.prinjsystems.asct.structures.conductors.light.CyanPixel;
-import com.prinjsystems.asct.structures.conductors.light.GreenPixel;
-import com.prinjsystems.asct.structures.conductors.light.RedPixel;
-import com.prinjsystems.asct.structures.conductors.light.WhitePixel;
-import com.prinjsystems.asct.structures.conductors.light.YellowPixel;
-import com.prinjsystems.asct.structures.conductors.semiconductors.ANDGate;
-import com.prinjsystems.asct.structures.conductors.semiconductors.NORGate;
-import com.prinjsystems.asct.structures.conductors.semiconductors.NOTGate;
-import com.prinjsystems.asct.structures.conductors.semiconductors.NSilicon;
-import com.prinjsystems.asct.structures.conductors.semiconductors.ORGate;
-import com.prinjsystems.asct.structures.conductors.semiconductors.PSilicon;
-import com.prinjsystems.asct.structures.conductors.semiconductors.PermanentSwitch;
-import com.prinjsystems.asct.structures.conductors.semiconductors.ToggleSwitch;
-import com.prinjsystems.asct.structures.conductors.semiconductors.Transistor;
-import com.prinjsystems.asct.structures.conductors.semiconductors.XORGate;
+import com.prinjsystems.asctlib.structures.ActionTile;
+import com.prinjsystems.asctlib.structures.GameMap;
+import com.prinjsystems.asctlib.structures.Layer;
+import com.prinjsystems.asctlib.structures.Tile;
+import com.prinjsystems.asctlib.structures.conductors.ConductorTile;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -72,6 +36,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -85,31 +50,18 @@ public class GameDisplay {
     private MouseHandler mouseHandler;
 
     private GameMap map;
+    private Tile[] tiles;
     private List<UIComponent> uiComponents;
 
-    private boolean paused = false, wiringMode = false;
+    private boolean paused = false;
     private boolean windowClosing = false;
 
-    private Tile[] tiles = new Tile[]{new Spark(), new CopperConductor(0, 0), new NSilicon(0, 0),
-            new PSilicon(0, 0), new Transistor(0, 0), new ANDGate(0, 0),
-            new NOTGate(0, 0), new ORGate(0, 0), new NORGate(0, 0),
-            new XORGate(0, 0), new ToggleSwitch(0, 0), new PermanentSwitch(0, 0),
-            new Clock(0, 0), new Insulator(0, 0), new ThermalConductor(0, 0),
-            new AluminiumConductor(0, 0), new RedPixel(0, 0), new GreenPixel(0, 0),
-            new BluePixel(0, 0), new YellowPixel(0, 0), new CyanPixel(0, 0),
-            new WhitePixel(0, 0)};
-    private Tile[] wires = new Tile[]{new BlueWire(0, 0), new BrownWire(0, 0),
-            new CyanWire(0, 0), new DarkBlueWire(0, 0), new DarkGrayWire(0, 0),
-            new DarkGreenWire(0, 0), new DarkRedWire(0, 0), new GrayWire(0, 0),
-            new GreenWire(0, 0), new LightOrangeWire(0, 0), new MagentaWire(0, 0),
-            new OrangeWire(0, 0), new RedWire(0, 0), new WhiteWire(0, 0),
-            new YellowWire(0, 0)};
-    private int currentTile = 0, currentWire = 0;
+    private int currentTile = 0;
 
     private float[] zooms = new float[]{0.25f, 0.5f, 1f, 1.5f, 2.25f, 3.375f, 5.0625f};
     private int currZoom = 0;
 
-    public GameDisplay(Dimension resolution) {
+    public GameDisplay(Dimension resolution, Tile[] tiles) {
         frame = new JFrame("Advanced Structure Creation Tool");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
@@ -125,7 +77,9 @@ public class GameDisplay {
         identityTransform = new AffineTransform();
         identityTransform.setToIdentity();
 
-        List<Layer> layers = new ArrayList<>();
+        this.tiles = tiles;
+
+        List<Layer> layers = new CopyOnWriteArrayList<>();
         layers.add(new Layer());
         map = new GameMap(layers);
 
@@ -244,12 +198,6 @@ public class GameDisplay {
                 if (paused) {
                     tick();
                 }
-            }
-        });
-        keyEvents.put(KeyEvent.VK_W, new JKeyEvent(true) {
-            @Override
-            public void run() {
-                wiringMode = !wiringMode;
             }
         });
         keyEvents.put(KeyEvent.VK_Q, new JKeyEvent(true) {
@@ -427,12 +375,12 @@ public class GameDisplay {
         MouseAdapter uiMouseListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
+                boolean activatedComponent = updateComponents(e, MouseEvent.MOUSE_PRESSED);
+                if (e.getButton() == MouseEvent.BUTTON1 && !activatedComponent) {
                     placeTile.setX(e.getX());
                     placeTile.setY(e.getY());
                     placeTile.run();
                 }
-                updateComponents(e, MouseEvent.MOUSE_PRESSED);
             }
 
             @Override
@@ -477,10 +425,6 @@ public class GameDisplay {
         // Draw paused string
         graphics.setColor(Color.ORANGE);
         graphics.drawString(paused ? "*PAUSED*" : "", 4, panel.getHeight() - 53);
-
-        // Draw mode string
-        graphics.setColor(Color.WHITE);
-        graphics.drawString(wiringMode ? "WIRING" : "NORMAL", 4, panel.getHeight() - 40);
 
         // Draw current tile
         graphics.setColor(tileColor);
@@ -553,66 +497,40 @@ public class GameDisplay {
     }
 
     private int getNextTileIndex() {
-        if (wiringMode) {
-            if (currentWire + 1 >= wires.length) {
-                return 0;
-            }
-            return currentWire + 1;
-        } else {
-            if (currentTile + 1 >= tiles.length) {
-                return 0;
-            }
-            return currentTile + 1;
+        if (currentTile + 1 >= tiles.length) {
+            return 0;
         }
+        return currentTile + 1;
     }
 
     private int getPreviousTileIndex() {
-        if (wiringMode) {
-            if (currentWire == 0) {
-                return wires.length - 1;
-            }
-            return currentWire - 1;
-        } else {
-            if (currentTile == 0) {
-                return tiles.length - 1;
-            }
-            return currentTile - 1;
+        if (currentTile == 0) {
+            return tiles.length - 1;
         }
+        return currentTile - 1;
     }
 
     private void goToNextTileIndex() {
-        if (wiringMode) {
-            if (++currentWire >= wires.length) {
-                currentWire = 0;
-            }
-        } else {
-            if (++currentTile >= tiles.length) {
-                currentTile = 0;
-            }
+        if (++currentTile >= tiles.length) {
+            currentTile = 0;
         }
     }
 
     private void goToPreviousTileIndex() {
-        if (wiringMode) {
-            if (--currentWire < 0) {
-                currentWire = wires.length - 1;
-            }
-        } else {
-            if (--currentTile < 0) {
-                currentTile = tiles.length - 1;
-            }
+        if (--currentTile < 0) {
+            currentTile = tiles.length - 1;
         }
     }
 
     private Tile getCurrentTile() {
-        return wiringMode ? wires[currentWire] : tiles[currentTile];
+        return tiles[currentTile];
     }
 
     private Tile getTile(int index) {
-        return wiringMode ? wires[index] : tiles[index];
+        return tiles[index];
     }
 
-    private void updateComponents(MouseEvent e, int mode) {
+    private boolean updateComponents(MouseEvent e, int mode) {
         boolean activatedComponent = false;
         for (int i = uiComponents.size() - 1; i > 0; i--) {
             UIComponent uiComponent = uiComponents.get(i);
@@ -628,5 +546,6 @@ public class GameDisplay {
                 uiComponent.setFocused(false);
             }
         }
+        return activatedComponent;
     }
 }

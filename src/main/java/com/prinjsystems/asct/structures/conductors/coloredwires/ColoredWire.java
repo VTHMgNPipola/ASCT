@@ -1,7 +1,7 @@
 package com.prinjsystems.asct.structures.conductors.coloredwires;
 
-import com.prinjsystems.asct.structures.Tile;
-import com.prinjsystems.asct.structures.conductors.ConductorTile;
+import com.prinjsystems.asctlib.structures.Tile;
+import com.prinjsystems.asctlib.structures.conductors.ConductorTile;
 import java.awt.Color;
 
 public abstract class ColoredWire extends ConductorTile {
