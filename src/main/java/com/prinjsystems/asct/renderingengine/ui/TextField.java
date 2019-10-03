@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
 
 public class TextField extends UIComponent {
@@ -37,6 +38,11 @@ public class TextField extends UIComponent {
 
     @Override
     public void update(MouseEvent evt, int mode) {
+        // No action
+    }
+
+    @Override
+    public void update(MouseWheelEvent evt, int mode) {
         // No action
     }
 

@@ -5,6 +5,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
 
 public class Button extends UIComponent {
@@ -61,6 +62,11 @@ public class Button extends UIComponent {
         if (!pressed && action != null) {
             action.run();
         }
+    }
+
+    @Override
+    public void update(MouseWheelEvent evt, int mode) {
+        // No action
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -86,6 +87,18 @@ public class Panel extends UIComponent {
                 component.update(evt, mode);
             } else {
                 component.setFocused(false);
+            }
+        }
+    }
+
+    @Override
+    public void update(MouseWheelEvent evt, int mode) {
+        for (UIComponent component : components) {
+            int eventX = (int) (evt.getX() - posX);
+            int eventY = (int) (evt.getY() - posY);
+            if (eventX > component.getPosX() && eventX < component.getPosX() + component.getWidth()
+                    && eventY > component.getPosY() && eventY < component.getPosY() + component.getHeight()) {
+                component.update(evt, mode);
             }
         }
     }

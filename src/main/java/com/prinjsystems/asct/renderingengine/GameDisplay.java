@@ -20,6 +20,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
@@ -171,6 +172,12 @@ public class GameDisplay {
             savePanel.setFocused(true);
         });
         uiComponents.add(saveButton);
+
+//        Test stuff
+//        ButtonList buttonList = new ButtonList(new Rectangle2D.Float(0, frame.getHeight() - 300, 500, 45));
+//        buttonList.setHorizontal(true);
+//        buttonList.addComponent(new Button("Testy McTestface", 0, 0, 125, 25));
+//        uiComponents.add(buttonList);
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
         // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
@@ -387,9 +394,16 @@ public class GameDisplay {
             public void mouseReleased(MouseEvent e) {
                 updateComponents(e, MouseEvent.MOUSE_RELEASED);
             }
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                updateComponents(e,
+                        e.getWheelRotation() < 0 ? MouseHandler.MOUSE_WHEEL_UP : MouseHandler.MOUSE_WHEEL_DOWN);
+            }
         };
         frame.addMouseListener(mouseHandler);
         panel.addMouseListener(uiMouseListener);
+        panel.addMouseWheelListener(uiMouseListener);
         panel.addMouseMotionListener(mouseHandler);
         panel.addMouseWheelListener(mouseHandler);
 
@@ -531,6 +545,25 @@ public class GameDisplay {
     }
 
     private boolean updateComponents(MouseEvent e, int mode) {
+        boolean activatedComponent = false;
+        for (int i = uiComponents.size() - 1; i > 0; i--) {
+            UIComponent uiComponent = uiComponents.get(i);
+            if (!activatedComponent
+                    && e.getX() > uiComponent.getPosX()
+                    && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
+                    && e.getY() > uiComponent.getPosY()
+                    && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
+                uiComponent.setFocused(true);
+                uiComponent.update(e, mode);
+                activatedComponent = true;
+            } else {
+                uiComponent.setFocused(false);
+            }
+        }
+        return activatedComponent;
+    }
+
+    private boolean updateComponents(MouseWheelEvent e, int mode) {
         boolean activatedComponent = false;
         for (int i = uiComponents.size() - 1; i > 0; i--) {
             UIComponent uiComponent = uiComponents.get(i);

@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
 
 public abstract class UIComponent {
@@ -76,6 +77,17 @@ public abstract class UIComponent {
      *             pressed or released on a button).
      */
     public abstract void update(MouseEvent evt, int mode);
+
+    /**
+     * Will update this component with a mouse wheel event, that may trigger an action in it.
+     * This method is supposed to be called only when a valid event happened (the mouse wheel moves at the component),
+     * since it is not guaranteed that implementations will check for that.
+     *
+     * @param evt  Event that happened.
+     * @param mode If useful for the implementation, may be the current "mode" of the event (e.g. if the mouse wheel
+     *             was moved up or down).
+     */
+    public abstract void update(MouseWheelEvent evt, int mode);
 
     /**
      * Will update this component with a key event, that may trigger an action in it.
