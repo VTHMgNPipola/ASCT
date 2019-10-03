@@ -8,7 +8,7 @@ import com.prinjsystems.asctlib.structures.conductors.semiconductors.PSilicon;
 import com.prinjsystems.asctlib.structures.conductors.semiconductors.Transistor;
 import java.awt.Color;
 
-@PlaceableTile
+@PlaceableTile("logic")
 public class PermanentSwitch extends Transistor {
     private static final long serialVersionUID = -7951692775675457336L;
 

@@ -3,7 +3,7 @@ package com.prinjsystems.asct.structures.conductors;
 import com.prinjsystems.asctlib.PlaceableTile;
 import java.awt.Color;
 
-@PlaceableTile
+@PlaceableTile("conductors")
 public class SlowClock extends Clock {
     private static final long serialVersionUID = -4795773074294504285L;
 

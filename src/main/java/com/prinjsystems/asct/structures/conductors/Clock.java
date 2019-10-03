@@ -4,7 +4,7 @@ import com.prinjsystems.asctlib.PlaceableTile;
 import com.prinjsystems.asctlib.structures.conductors.ConductorTile;
 import java.awt.Color;
 
-@PlaceableTile
+@PlaceableTile("conductors")
 public class Clock extends ConductorTile {
     private static final long serialVersionUID = -792645444317387412L;
 

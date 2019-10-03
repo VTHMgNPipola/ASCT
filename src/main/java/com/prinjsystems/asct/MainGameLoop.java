@@ -128,6 +128,9 @@ public class MainGameLoop extends ASCTMod {
 
     @Override
     public void startup() {
-        System.out.println("Test");
+        TileCategoryHolder.getInstance().registerCategory("conductors");
+        TileCategoryHolder.getInstance().registerCategory("logic");
+        TileCategoryHolder.getInstance().registerCategory("lighting");
+        TileCategoryHolder.getInstance().registerCategory("wiring");
     }
 }

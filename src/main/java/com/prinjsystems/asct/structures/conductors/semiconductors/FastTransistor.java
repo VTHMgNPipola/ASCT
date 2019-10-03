@@ -4,7 +4,7 @@ import com.prinjsystems.asctlib.PlaceableTile;
 import com.prinjsystems.asctlib.structures.conductors.semiconductors.Transistor;
 import java.awt.Color;
 
-@PlaceableTile
+@PlaceableTile("logic")
 public class FastTransistor extends Transistor {
     private static final long serialVersionUID = 364817866116384021L;
 

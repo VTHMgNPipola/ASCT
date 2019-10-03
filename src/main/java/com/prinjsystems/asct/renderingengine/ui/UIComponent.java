@@ -16,10 +16,12 @@ public abstract class UIComponent {
     protected boolean focused;
 
     public UIComponent(Rectangle2D.Float bounds) {
-        this.posX = (float) bounds.getX();
-        this.posY = (float) bounds.getY();
-        this.width = (float) bounds.getWidth();
-        this.height = (float) bounds.getHeight();
+        if (bounds != null) {
+            this.posX = (float) bounds.getX();
+            this.posY = (float) bounds.getY();
+            this.width = (float) bounds.getWidth();
+            this.height = (float) bounds.getHeight();
+        }
     }
 
     public float getPosX() {

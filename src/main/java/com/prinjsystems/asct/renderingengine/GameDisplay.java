@@ -66,6 +66,9 @@ public class GameDisplay {
     private float[] zooms = new float[]{0.25f, 0.5f, 1f, 1.5f, 2.25f, 3.375f, 5.0625f};
     private int currZoom = 0;
 
+    /* UI Elements */
+    private ButtonList tileList;
+
     public GameDisplay(Dimension resolution, Map<String, TileCategory> categories) {
         frame = new JFrame("Advanced Structure Creation Tool");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -134,7 +137,8 @@ public class GameDisplay {
                 super.update(evt, mode);
             }
         };
-        savePanel.addComponent(new Label("Save A.S.C.T. Simulation", new Rectangle2D.Float(5, 5, 0, 0)));
+        savePanel.addComponent(new Label("Save A.S.C.T. Simulation",
+                new Rectangle2D.Float(5, 5, 0, 0)));
 
         Label filenameLabel = new Label("Filename", new Rectangle2D.Float(5, 25, 0, 0));
         savePanel.addComponent(filenameLabel);
@@ -180,35 +184,29 @@ public class GameDisplay {
 
         FontRenderContext frc = new FontRenderContext(null, false, false);
         /* CATEGORY LISTING START */
-        ButtonList categoryList = new ButtonList(new Rectangle2D.Float(0, frame.getHeight() - 70, 500, 35));
+        ButtonList categoryList = new ButtonList(new Rectangle2D.Float(0, frame.getHeight() - 95,
+                frame.getWidth() - ((Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2) - 20, 35));
         categoryList.setTicksPerWheelUnit(10);
         categoryList.setHorizontal(true);
         for (String categoryName : categories.keySet()) {
             TextLayout textLayout = new TextLayout(categoryName, font, frc);
             Button categoryButton = new Button(categoryName.toUpperCase(), 0, 0,
                     (int) textLayout.getBounds().getWidth() + 10, 25);
-            categoryButton.setAction(() -> currentCategory = categoryName);
+            categoryButton.setAction(() -> {
+                currentCategory = categoryName;
+                updateTileList(tileList);
+            });
             categoryList.addComponent(categoryButton);
         }
         uiComponents.add(categoryList);
         /* CATEGORY LISTING END */
 
         /* TILE LISTING START */
-        ButtonList tileList = new ButtonList(new Rectangle2D.Float(0, frame.getHeight() - 35, 500, 35));
+        tileList = new ButtonList(new Rectangle2D.Float(0, categoryList.getPosY() + categoryList.getHeight(),
+                categoryList.getWidth(), 35));
         tileList.setTicksPerWheelUnit(10);
         tileList.setHorizontal(true);
-        for (TileCategory category : categories.values()) {
-            for (int i = 0; i < category.getTiles().size(); i++) {
-                Tile tile = category.getTiles().get(i);
-                TextLayout textLayout = new TextLayout(tile.getShortenedName(), font, frc);
-                Button tileButton = new Button(tile.getShortenedName(), 0, 0,
-                        (int) textLayout.getBounds().getWidth() + 10, 25);
-                tileButton.setColor(tile.getActualColor());
-                int finalI = i;
-                tileButton.setAction(() -> category.setCurrentTileIndex(finalI));
-                tileList.addComponent(tileButton);
-            }
-        }
+        updateTileList(tileList);
         uiComponents.add(tileList);
         /* TILE LISTING END */
 
@@ -338,7 +336,8 @@ public class GameDisplay {
                                         .newInstance(posX, posY);
                                 layer.addTile(tile);
                                 if (keyboardHandler.isFlagActive(KeyEvent.VK_SHIFT)
-                                        || keyboardHandler.isFlagActive(KeyEvent.VK_ALT) && tile instanceof ConductorTile) {
+                                        || keyboardHandler.isFlagActive(KeyEvent.VK_ALT)
+                                        && tile instanceof ConductorTile) {
                                     int layerIndex = -1;
                                     if (keyboardHandler.isFlagActive(KeyEvent.VK_SHIFT)) {
                                         layerIndex = map.getCurrentLayer() != map.getLayers().size() - 1 ?
@@ -425,13 +424,15 @@ public class GameDisplay {
     }
 
     public void render() {
+        graphics.setFont(font);
         graphics.setTransform(identityTransform);
         graphics.setColor(Color.black);
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
 
         // Draw paused string
         graphics.setColor(Color.ORANGE);
-        graphics.drawString(paused ? "*PAUSED*" : "", 4, panel.getHeight() - graphics.getFontMetrics().getHeight() - 4);
+        graphics.drawString(paused ? "*PAUSED*" : "", 4,
+                panel.getHeight() - graphics.getFontMetrics().getHeight() - 4);
 
         // Draw layer indication
         for (int i = 0; i < map.getLayers().size(); i++) {
@@ -459,6 +460,15 @@ public class GameDisplay {
         graphics.setStroke(UIComponent.BASIC_STROKE);
         graphics.setTransform(camera);
         map.render(graphics);
+
+        TileCategory category = categories.get(currentCategory);
+        for (int i = 0; i < tileList.getComponents().size(); i++) {
+            if (i == category.getCurrentTileIndex()) {
+                ((Button) tileList.getComponent(i)).setBorderColor(Color.WHITE);
+            } else {
+                ((Button) tileList.getComponent(i)).setBorderColor(Button.DEFAULT_BORDER_COLOR);
+            }
+        }
 
         // Draw UI components
         graphics.setTransform(identityTransform);
@@ -523,5 +533,25 @@ public class GameDisplay {
             }
         }
         return activatedComponent;
+    }
+
+    private void updateTileList(ButtonList tileList) {
+        tileList.setComponents(new ArrayList<>());
+        FontRenderContext frc = new FontRenderContext(null, false, false);
+        for (int i = 0; i < categories.get(currentCategory).getTiles().size(); i++) {
+            TileCategory category = categories.get(currentCategory);
+            Tile tile = category.getTiles().get(i);
+            TextLayout textLayout = new TextLayout(tile.getShortenedName(), font, frc);
+            Button tileButton = new Button(tile.getShortenedName(), 0, 0,
+                    (int) textLayout.getBounds().getWidth() + 10, 25);
+            Color tileColor = tile.getActualColor();
+            tileButton.setColor(tileColor);
+            if (Color.RGBtoHSB(tileColor.getRed(), tileColor.getGreen(), tileColor.getBlue(), null)[2] < 0.5) {
+                tileButton.setTextColor(Color.WHITE);
+            }
+            int finalI = i;
+            tileButton.setAction(() -> category.setCurrentTileIndex(finalI));
+            tileList.addComponent(tileButton);
+        }
     }
 }

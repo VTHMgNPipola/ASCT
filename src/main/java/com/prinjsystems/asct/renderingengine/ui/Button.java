@@ -10,10 +10,12 @@ import java.awt.geom.Rectangle2D;
 
 public class Button extends UIComponent {
     private String text;
-    private Color color, borderColor;
+    public static final Color DEFAULT_BACKGROUND_COLOR = Color.LIGHT_GRAY;
 
     private boolean pressed;
     private Runnable action;
+    public static final Color DEFAULT_BORDER_COLOR = Color.DARK_GRAY;
+    private Color color, borderColor, textColor;
 
     public Button(String text, Rectangle2D.Float bounds, Color color, Color borderColor) {
         super(bounds);
@@ -23,7 +25,7 @@ public class Button extends UIComponent {
     }
 
     public Button(String text, Rectangle2D.Float bounds) {
-        this(text, bounds, Color.LIGHT_GRAY, Color.DARK_GRAY);
+        this(text, bounds, DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR);
     }
 
     public Button(String text, float posX, float posY, float width, float height) {
@@ -49,7 +51,7 @@ public class Button extends UIComponent {
 
         // Draw text
         graphics.setFont(Label.DEFAULT_FONT);
-        graphics.setColor(borderColor);
+        graphics.setColor(textColor != null ? textColor : DEFAULT_BORDER_COLOR);
         FontMetrics fontMetrics = graphics.getFontMetrics();
         int x = (int) (((widthDef - fontMetrics.stringWidth(text)) / 2) + posX);
         int y = (int) (((heightDef - fontMetrics.getHeight()) / 2) + fontMetrics.getAscent() + posY);
@@ -96,6 +98,14 @@ public class Button extends UIComponent {
 
     public void setBorderColor(Color borderColor) {
         this.borderColor = borderColor;
+    }
+
+    public Color getTextColor() {
+        return textColor;
+    }
+
+    public void setTextColor(Color textColor) {
+        this.textColor = textColor;
     }
 
     public Runnable getAction() {

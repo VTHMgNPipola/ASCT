@@ -7,7 +7,7 @@ import com.prinjsystems.asctlib.structures.conductors.semiconductors.NSilicon;
 import com.prinjsystems.asctlib.structures.conductors.semiconductors.PSilicon;
 import java.awt.Color;
 
-@PlaceableTile
+@PlaceableTile("logic")
 public class ToggleSwitch extends ConductorTile {
     private static final long serialVersionUID = -7099513109699412277L;
 

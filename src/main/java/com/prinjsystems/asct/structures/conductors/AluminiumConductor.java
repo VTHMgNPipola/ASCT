@@ -4,7 +4,7 @@ import com.prinjsystems.asctlib.PlaceableTile;
 import com.prinjsystems.asctlib.structures.conductors.ConductorTile;
 import java.awt.Color;
 
-@PlaceableTile
+@PlaceableTile("conductors")
 public class AluminiumConductor extends ConductorTile {
     private static final long serialVersionUID = -264047126453588482L;
 

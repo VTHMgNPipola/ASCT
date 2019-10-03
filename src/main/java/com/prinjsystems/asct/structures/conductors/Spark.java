@@ -4,7 +4,7 @@ import com.prinjsystems.asctlib.PlaceableTile;
 import com.prinjsystems.asctlib.structures.ActionTile;
 import java.awt.Color;
 
-@PlaceableTile
+@PlaceableTile("conductors")
 public class Spark extends ActionTile {
     private static final long serialVersionUID = -1176647464574253132L;
 

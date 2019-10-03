@@ -52,6 +52,14 @@ public class ButtonList extends UIComponent {
         return buttons.get(index);
     }
 
+    public List<Button> getComponents() {
+        return buttons;
+    }
+
+    public void setComponents(List<Button> buttons) {
+        this.buttons = buttons;
+    }
+
     @Override
     public void render(Graphics2D graphics) {
         Graphics2D g = (Graphics2D) graphics.create();

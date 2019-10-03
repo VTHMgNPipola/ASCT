@@ -6,7 +6,7 @@ import com.prinjsystems.asctlib.structures.conductors.semiconductors.LogicGate;
 import com.prinjsystems.asctlib.structures.conductors.semiconductors.NSilicon;
 import java.awt.Color;
 
-@PlaceableTile
+@PlaceableTile("logic")
 public class ORGate extends LogicGate {
     private static final long serialVersionUID = -9170005924694439966L;
 
