@@ -569,7 +569,7 @@ public class GameDisplay {
                     (int) textLayout.getBounds().getWidth() + 10, 25);
             Color tileColor = tile.getActualColor();
             tileButton.setColor(tileColor);
-            if (Color.RGBtoHSB(tileColor.getRed(), tileColor.getGreen(), tileColor.getBlue(), null)[2] < 0.5) {
+            if (Color.RGBtoHSB(tileColor.getRed(), tileColor.getGreen(), tileColor.getBlue(), null)[2] < 0.69) {
                 tileButton.setTextColor(Color.WHITE);
             }
             int finalI = i;
