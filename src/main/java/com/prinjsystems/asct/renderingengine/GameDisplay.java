@@ -377,7 +377,26 @@ public class GameDisplay {
                 }
             }
         });
-        mouseHandler = new MouseHandler(mouseEvents, new HashMap<>());
+
+        HashMap<Integer, JMouseEvent> wheelEvents = new HashMap<>();
+        wheelEvents.put(MouseHandler.MOUSE_WHEEL_UP, new JMouseEvent(false) {
+            @Override
+            public void run() {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom < zooms.length - 1) {
+                    camera.setToScale(zooms[++currZoom], zooms[currZoom]);
+                }
+            }
+        });
+        wheelEvents.put(MouseHandler.MOUSE_WHEEL_DOWN, new JMouseEvent(false) {
+            @Override
+            public void run() {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom > 0) {
+                    camera.setToScale(zooms[--currZoom], zooms[currZoom]);
+                }
+            }
+        });
+
+        mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
         MouseAdapter uiMouseListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
