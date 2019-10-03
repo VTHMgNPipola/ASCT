@@ -11,16 +11,17 @@ import java.util.List;
 
 public class ButtonList extends UIComponent {
     private List<Button> buttons;
-    private Color color, borderColor, scrollbarColor;
+    private Color color, borderColor;
     private boolean horizontal;
     private int scroll;
+    private int ticksPerWheelUnit;
 
     public ButtonList(Rectangle2D.Float bounds, List<Button> buttons, Color color, Color borderColor) {
         super(bounds);
         this.buttons = buttons;
         this.color = color;
         this.borderColor = borderColor;
-        scrollbarColor = Color.LIGHT_GRAY;
+        ticksPerWheelUnit = 1;
     }
 
     public ButtonList(Rectangle2D.Float bounds, Color color, Color borderColor) {
@@ -31,12 +32,12 @@ public class ButtonList extends UIComponent {
         this(bounds, new ArrayList<>(), Color.GRAY, Color.DARK_GRAY);
     }
 
-    public void setScrollbarColor(Color scrollbarColor) {
-        this.scrollbarColor = scrollbarColor;
-    }
-
     public void setHorizontal(boolean horizontal) {
         this.horizontal = horizontal;
+    }
+
+    public void setTicksPerWheelUnit(int ticksPerWheelUnit) {
+        this.ticksPerWheelUnit = ticksPerWheelUnit;
     }
 
     public void addComponent(Button button) {
@@ -63,7 +64,7 @@ public class ButtonList extends UIComponent {
         g.setColor(borderColor);
         g.drawRect(0, 0, (int) width, (int) height);
 
-        int posOffset = 5 + scroll;
+        int posOffset = 5 - scroll;
         for (Button button : buttons) {
             if (horizontal) {
                 button.setPosX(posOffset);
@@ -76,13 +77,6 @@ public class ButtonList extends UIComponent {
             }
 
             button.render(g);
-        }
-
-        g.setColor(scrollbarColor);
-        if (horizontal) {
-            g.fillRect(5 + scroll, (int) (height - 12), (int) (width / 4), 7);
-        } else {
-            g.fillRect(5, 5 + scroll, 7, (int) (height / 4));
         }
 
         g.dispose();
@@ -105,14 +99,33 @@ public class ButtonList extends UIComponent {
 
     @Override
     public void update(MouseWheelEvent evt, int mode) {
-        scroll += evt.getUnitsToScroll();
+        scroll += evt.getUnitsToScroll() * ticksPerWheelUnit;
+        int maximumScroll = getMaximumScroll();
         if (scroll < 0) {
             scroll = 0;
-        } //else if (scroll > ) // TODO: Get maximum scroll value
+        } else if (scroll > maximumScroll) {
+            scroll = maximumScroll;
+        }
     }
 
     @Override
     public void update(KeyEvent evt, int mode) {
         // No action
+    }
+
+    private int getMaximumScroll() {
+        int maximumScroll = 5;
+        for (Button button : buttons) {
+            if (horizontal) {
+                maximumScroll += button.getWidth() + 5;
+            } else {
+                maximumScroll += button.getHeight() + 5;
+            }
+        }
+        maximumScroll -= width;
+        if (maximumScroll < 0) {
+            maximumScroll = 0;
+        }
+        return maximumScroll;
     }
 }

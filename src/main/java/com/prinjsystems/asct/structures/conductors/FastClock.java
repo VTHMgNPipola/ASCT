@@ -9,6 +9,7 @@ public class FastClock extends Clock {
 
     public FastClock(int posX, int posY) {
         super(posX, posY);
+        shortenedName = "FCLK";
         name = "Fast Clock";
         color = new Color(225, 222, 82);
         delay = 2;

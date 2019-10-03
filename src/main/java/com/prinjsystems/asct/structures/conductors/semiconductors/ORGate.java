@@ -11,7 +11,7 @@ public class ORGate extends LogicGate {
     private static final long serialVersionUID = -9170005924694439966L;
 
     public ORGate(int posX, int posY) {
-        super(posX, posY, Color.GRAY, "OR Gate");
+        super(posX, posY, Color.GRAY, "OR Gate", "OR");
     }
 
     @Override

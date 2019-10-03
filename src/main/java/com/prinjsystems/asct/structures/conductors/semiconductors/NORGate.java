@@ -13,7 +13,7 @@ public class NORGate extends LogicGate {
     private int unpoweredFor0 = 0;
 
     public NORGate(int posX, int posY) {
-        super(posX, posY, Color.LIGHT_GRAY, "NOR Gate");
+        super(posX, posY, Color.LIGHT_GRAY, "NOR Gate", "NOR");
     }
 
     @Override

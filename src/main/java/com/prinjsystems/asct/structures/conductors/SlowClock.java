@@ -9,6 +9,7 @@ public class SlowClock extends Clock {
 
     public SlowClock(int posX, int posY) {
         super(posX, posY);
+        shortenedName = "SCLK";
         name = "Slow Clock";
         color = new Color(105, 100, 0);
         delay = 8;

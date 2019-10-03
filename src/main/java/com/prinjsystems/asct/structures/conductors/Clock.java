@@ -12,7 +12,7 @@ public class Clock extends ConductorTile {
     private int cycles = 0;
 
     public Clock(int posX, int posY) {
-        super(posX, posY, new Color(155, 149, 0), "Clock");
+        super(posX, posY, new Color(155, 149, 0), "Clock", "CLK");
     }
 
     @Override

@@ -2,11 +2,13 @@ package com.prinjsystems.asct.renderingengine;
 
 import com.prinjsystems.asct.MainGameLoop;
 import com.prinjsystems.asct.renderingengine.ui.Button;
+import com.prinjsystems.asct.renderingengine.ui.ButtonList;
 import com.prinjsystems.asct.renderingengine.ui.Label;
 import com.prinjsystems.asct.renderingengine.ui.Panel;
 import com.prinjsystems.asct.renderingengine.ui.TextField;
 import com.prinjsystems.asct.renderingengine.ui.UIComponent;
 import com.prinjsystems.asct.structures.conductors.Spark;
+import com.prinjsystems.asctlib.TileCategory;
 import com.prinjsystems.asctlib.structures.ActionTile;
 import com.prinjsystems.asctlib.structures.GameMap;
 import com.prinjsystems.asctlib.structures.Layer;
@@ -23,6 +25,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -51,18 +55,18 @@ public class GameDisplay {
     private MouseHandler mouseHandler;
 
     private GameMap map;
-    private Tile[] tiles;
+    private Map<String, TileCategory> categories;
     private List<UIComponent> uiComponents;
+
+    private String currentCategory;
 
     private boolean paused = false;
     private boolean windowClosing = false;
 
-    private int currentTile = 0;
-
     private float[] zooms = new float[]{0.25f, 0.5f, 1f, 1.5f, 2.25f, 3.375f, 5.0625f};
     private int currZoom = 0;
 
-    public GameDisplay(Dimension resolution, Tile[] tiles) {
+    public GameDisplay(Dimension resolution, Map<String, TileCategory> categories) {
         frame = new JFrame("Advanced Structure Creation Tool");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
@@ -78,7 +82,8 @@ public class GameDisplay {
         identityTransform = new AffineTransform();
         identityTransform.setToIdentity();
 
-        this.tiles = tiles;
+        this.categories = categories;
+        currentCategory = categories.keySet().iterator().next();
 
         List<Layer> layers = new CopyOnWriteArrayList<>();
         layers.add(new Layer());
@@ -173,11 +178,39 @@ public class GameDisplay {
         });
         uiComponents.add(saveButton);
 
-//        Test stuff
-//        ButtonList buttonList = new ButtonList(new Rectangle2D.Float(0, frame.getHeight() - 300, 500, 45));
-//        buttonList.setHorizontal(true);
-//        buttonList.addComponent(new Button("Testy McTestface", 0, 0, 125, 25));
-//        uiComponents.add(buttonList);
+        FontRenderContext frc = new FontRenderContext(null, false, false);
+        /* CATEGORY LISTING START */
+        ButtonList categoryList = new ButtonList(new Rectangle2D.Float(0, frame.getHeight() - 70, 500, 35));
+        categoryList.setTicksPerWheelUnit(10);
+        categoryList.setHorizontal(true);
+        for (String categoryName : categories.keySet()) {
+            TextLayout textLayout = new TextLayout(categoryName, font, frc);
+            Button categoryButton = new Button(categoryName.toUpperCase(), 0, 0,
+                    (int) textLayout.getBounds().getWidth() + 10, 25);
+            categoryButton.setAction(() -> currentCategory = categoryName);
+            categoryList.addComponent(categoryButton);
+        }
+        uiComponents.add(categoryList);
+        /* CATEGORY LISTING END */
+
+        /* TILE LISTING START */
+        ButtonList tileList = new ButtonList(new Rectangle2D.Float(0, frame.getHeight() - 35, 500, 35));
+        tileList.setTicksPerWheelUnit(10);
+        tileList.setHorizontal(true);
+        for (TileCategory category : categories.values()) {
+            for (int i = 0; i < category.getTiles().size(); i++) {
+                Tile tile = category.getTiles().get(i);
+                TextLayout textLayout = new TextLayout(tile.getShortenedName(), font, frc);
+                Button tileButton = new Button(tile.getShortenedName(), 0, 0,
+                        (int) textLayout.getBounds().getWidth() + 10, 25);
+                tileButton.setColor(tile.getActualColor());
+                int finalI = i;
+                tileButton.setAction(() -> category.setCurrentTileIndex(finalI));
+                tileList.addComponent(tileButton);
+            }
+        }
+        uiComponents.add(tileList);
+        /* TILE LISTING END */
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
         // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
@@ -205,18 +238,6 @@ public class GameDisplay {
                 if (paused) {
                     tick();
                 }
-            }
-        });
-        keyEvents.put(KeyEvent.VK_Q, new JKeyEvent(true) {
-            @Override
-            public void run() {
-                goToPreviousTileIndex();
-            }
-        });
-        keyEvents.put(KeyEvent.VK_E, new JKeyEvent(true) {
-            @Override
-            public void run() {
-                goToNextTileIndex();
             }
         });
         keyEvents.put(KeyEvent.VK_ADD, new JKeyEvent(true) {
@@ -357,28 +378,7 @@ public class GameDisplay {
                 }
             }
         });
-        HashMap<Integer, JMouseEvent> wheelEvents = new HashMap<>();
-        wheelEvents.put(MouseHandler.MOUSE_WHEEL_UP, new JMouseEvent(false) {
-            @Override
-            public void run() {
-                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom < zooms.length - 1) {
-                    camera.setToScale(zooms[++currZoom], zooms[currZoom]);
-                } else if (!keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
-                    goToNextTileIndex();
-                }
-            }
-        });
-        wheelEvents.put(MouseHandler.MOUSE_WHEEL_DOWN, new JMouseEvent(false) {
-            @Override
-            public void run() {
-                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom > 0) {
-                    camera.setToScale(zooms[--currZoom], zooms[currZoom]);
-                } else if (!keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
-                    goToPreviousTileIndex();
-                }
-            }
-        });
-        mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
+        mouseHandler = new MouseHandler(mouseEvents, new HashMap<>());
         MouseAdapter uiMouseListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -429,36 +429,9 @@ public class GameDisplay {
         graphics.setColor(Color.black);
         graphics.fillRect(0, 0, panel.getWidth(), panel.getHeight());
 
-        // Draw tile ghost
-        double tileSize = Tile.TILE_SIZE * camera.getScaleX();
-        Color tileColor = getCurrentTile().getColor();
-        graphics.setColor(new Color(tileColor.getRed(), tileColor.getGreen(), tileColor.getBlue(), 127));
-        graphics.fillRect((int) (mouseHandler.getMouseX() - (mouseHandler.getMouseX() % tileSize)),
-                (int) (mouseHandler.getMouseY() - (mouseHandler.getMouseY() % tileSize)), (int) tileSize, (int) tileSize);
-
         // Draw paused string
         graphics.setColor(Color.ORANGE);
-        graphics.drawString(paused ? "*PAUSED*" : "", 4, panel.getHeight() - 53);
-
-        // Draw current tile
-        graphics.setColor(tileColor);
-        graphics.fillRect(4, panel.getHeight() - 36, 32, 32);
-        graphics.setFont(font);
-        graphics.drawString(getCurrentTile().getName(), 38,
-                panel.getHeight() - 32 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
-
-        // Draw next tile
-        graphics.setColor(getTile(getNextTileIndex()).getColor());
-        graphics.fillRect(38, panel.getHeight() - 12, 8, 8);
-        graphics.drawString("NEXT", 38,
-                panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
-
-        // Draw previous tile
-        graphics.setColor(getTile(getPreviousTileIndex()).getColor());
-        graphics.fillRect(graphics.getFontMetrics().stringWidth("NEXT") + 40, panel.getHeight() - 12,
-                8, 8);
-        graphics.drawString("PREVIOUS", graphics.getFontMetrics().stringWidth("NEXT") + 40,
-                panel.getHeight() - 18 + graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getAscent());
+        graphics.drawString(paused ? "*PAUSED*" : "", 4, panel.getHeight() - graphics.getFontMetrics().getHeight() - 4);
 
         // Draw layer indication
         for (int i = 0; i < map.getLayers().size(); i++) {
@@ -510,38 +483,8 @@ public class GameDisplay {
         return windowClosing;
     }
 
-    private int getNextTileIndex() {
-        if (currentTile + 1 >= tiles.length) {
-            return 0;
-        }
-        return currentTile + 1;
-    }
-
-    private int getPreviousTileIndex() {
-        if (currentTile == 0) {
-            return tiles.length - 1;
-        }
-        return currentTile - 1;
-    }
-
-    private void goToNextTileIndex() {
-        if (++currentTile >= tiles.length) {
-            currentTile = 0;
-        }
-    }
-
-    private void goToPreviousTileIndex() {
-        if (--currentTile < 0) {
-            currentTile = tiles.length - 1;
-        }
-    }
-
-    private Tile getCurrentTile() {
-        return tiles[currentTile];
-    }
-
-    private Tile getTile(int index) {
-        return tiles[index];
+    public Tile getCurrentTile() {
+        return categories.get(currentCategory).getCurrentTile();
     }
 
     private boolean updateComponents(MouseEvent e, int mode) {

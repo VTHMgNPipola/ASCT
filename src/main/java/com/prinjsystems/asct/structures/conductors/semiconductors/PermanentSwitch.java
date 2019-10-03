@@ -14,6 +14,7 @@ public class PermanentSwitch extends Transistor {
 
     public PermanentSwitch(int posX, int posY) {
         super(posX, posY);
+        shortenedName = "PTGL";
         name = "Permanent Switch";
         color = new Color(0, 88, 9);
         conductiveColor = new Color(0, 195, 0);

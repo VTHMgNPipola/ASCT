@@ -13,7 +13,7 @@ public class NOTGate extends LogicGate {
     private int unpoweredFor0 = 0;
 
     public NOTGate(int posX, int posY) {
-        super(posX, posY, Color.RED, "NOT Gate");
+        super(posX, posY, Color.RED, "NOT Gate", "NOT");
     }
 
     @Override

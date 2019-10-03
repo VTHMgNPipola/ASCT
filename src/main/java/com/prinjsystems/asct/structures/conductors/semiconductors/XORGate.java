@@ -12,7 +12,7 @@ public class XORGate extends LogicGate {
     private static final long serialVersionUID = -6241453379926218849L;
 
     public XORGate(int posX, int posY) {
-        super(posX, posY, Color.CYAN, "XOR Gate");
+        super(posX, posY, Color.CYAN, "XOR Gate", "XOR");
     }
 
     @Override

@@ -9,7 +9,7 @@ public class Spark extends ActionTile {
     private static final long serialVersionUID = -1176647464574253132L;
 
     public Spark() {
-        super(0, 0, new Color(255, 191, 0), "Spark", true);
+        super(0, 0, new Color(255, 191, 0), "Spark", "SPRK");
     }
 
     @Override

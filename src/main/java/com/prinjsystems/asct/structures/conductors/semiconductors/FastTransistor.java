@@ -10,6 +10,7 @@ public class FastTransistor extends Transistor {
 
     public FastTransistor(int posX, int posY) {
         super(posX, posY);
+        shortenedName = "FTRT";
         name = "Fast Transistor";
         color = new Color(202, 94, 234);
         conductiveColor = new Color(148, 65, 255);

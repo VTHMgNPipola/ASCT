@@ -11,7 +11,7 @@ public class ANDGate extends LogicGate {
     private static final long serialVersionUID = -326227518085991510L;
 
     public ANDGate(int posX, int posY) {
-        super(posX, posY, Color.white, "AND Gate");
+        super(posX, posY, Color.white, "AND Gate", "AND");
     }
 
     @Override
