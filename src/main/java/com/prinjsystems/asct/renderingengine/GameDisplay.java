@@ -118,7 +118,15 @@ public class GameDisplay {
                 return;
             }
             MainGameLoop.setTargetClockFrequency(frequency);
-            frequencyLabel.setText(String.format(frequencyLabelText, MainGameLoop.getTargetClockFrequency()));
+            String frequencyText;
+            if (frequency / 1000 < 1) {
+                frequencyText = frequency + "";
+            } else if (frequency / 1000 >= 1 && frequency / 1000000 < 1) {
+                frequencyText = (frequency / 1000) + "k";
+            } else {
+                frequencyText = (frequency / 1000000) + "M";
+            }
+            frequencyLabel.setText(String.format(frequencyLabelText, frequencyText));
         });
         uiComponents.add(setFrequencyButton);
         /* FREQUENCY SELECTOR END */

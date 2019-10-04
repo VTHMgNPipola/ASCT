@@ -18,12 +18,13 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import org.reflections.Reflections;
 
@@ -51,7 +52,7 @@ public class MainGameLoop extends ASCTMod {
         // Get tiles
         Set<Class<?>> annotatedTiles = reflections.getTypesAnnotatedWith(PlaceableTile.class);
         List<TileCategory> categoryList = TileCategoryHolder.getInstance().getCategories();
-        Map<String, TileCategory> categories = new HashMap<>();
+        Map<String, TileCategory> categories = new TreeMap<>();
         for (TileCategory category : categoryList) {
             categories.put(category.getName(), category);
         }
@@ -63,6 +64,10 @@ public class MainGameLoop extends ASCTMod {
                 instance = (Tile) annotatedTile.getDeclaredConstructor().newInstance();
             }
             categories.get(annotatedTile.getAnnotation(PlaceableTile.class).value()).getTiles().add(instance);
+        }
+
+        for (TileCategory category : categories.values()) {
+            Collections.sort(category.getTiles());
         }
 
         // Get resolution (default 1280x768)
