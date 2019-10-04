@@ -92,6 +92,11 @@ public class GameDisplay {
         layers.add(new Layer());
         map = new GameMap(layers);
 
+        File savesFolder = new File("./saves/");
+        if (!savesFolder.exists() && !savesFolder.mkdirs()) {
+            throw new IOError(new IOException("Unable to create 'saves' directory!"));
+        }
+
         uiComponents = new ArrayList<>();
 
         /* FREQUENCY SELECTOR START */
@@ -156,10 +161,7 @@ public class GameDisplay {
         Button save = new Button("Save", new Rectangle2D.Float(5, filename.getPosY() + 25, 50, 15));
         save.setAction(() -> {
             String filenameWithExtension = filename.getText() + (filename.getText().endsWith(".ssf") ? "" : ".ssf");
-            File outputFile = new File("/saves/" + filenameWithExtension);
-            if (!outputFile.mkdirs()) {
-                throw new IOError(new IOException("Unable to create 'saves' directory!"));
-            }
+            File outputFile = new File("./saves/" + filenameWithExtension);
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputFile))) {
                 oos.writeObject(map);
             } catch (IOException e) {
@@ -567,7 +569,7 @@ public class GameDisplay {
     }
 
     private void updateTileList(ButtonList tileList) {
-        tileList.setComponents(new ArrayList<>());
+        tileList.setComponents(new CopyOnWriteArrayList<>());
         FontRenderContext frc = new FontRenderContext(null, false, false);
         for (int i = 0; i < categories.get(currentCategory).getTiles().size(); i++) {
             TileCategory category = categories.get(currentCategory);

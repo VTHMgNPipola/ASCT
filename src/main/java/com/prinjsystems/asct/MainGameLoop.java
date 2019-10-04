@@ -44,7 +44,7 @@ public class MainGameLoop extends ASCTMod {
         // TODO: Load classes from jars inside ./mods/ folder
 
         // Startup mods
-        Reflections reflections = new Reflections("");
+        Reflections reflections = new Reflections("com");
         for (Class<? extends ASCTMod> mod : reflections.getSubTypesOf(ASCTMod.class)) {
             mod.getDeclaredConstructor().newInstance().startup();
         }
@@ -57,6 +57,9 @@ public class MainGameLoop extends ASCTMod {
             categories.put(category.getName(), category);
         }
         for (Class<?> annotatedTile : annotatedTiles) {
+            if (annotatedTile.getAnnotation(PlaceableTile.class) == null) {
+                continue;
+            }
             Tile instance;
             try {
                 instance = (Tile) annotatedTile.getDeclaredConstructor(int.class, int.class).newInstance(0, 0);
@@ -136,7 +139,6 @@ public class MainGameLoop extends ASCTMod {
     @Override
     public void startup() {
         TileCategoryHolder.getInstance().registerCategory("conductors");
-        TileCategoryHolder.getInstance().registerCategory("logic");
         TileCategoryHolder.getInstance().registerCategory("lighting");
         TileCategoryHolder.getInstance().registerCategory("wiring");
     }

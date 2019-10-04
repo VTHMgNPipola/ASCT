@@ -6,8 +6,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ButtonList extends UIComponent {
     private List<Button> buttons;
@@ -25,11 +25,11 @@ public class ButtonList extends UIComponent {
     }
 
     public ButtonList(Rectangle2D.Float bounds, Color color, Color borderColor) {
-        this(bounds, new ArrayList<>(), color, borderColor);
+        this(bounds, new CopyOnWriteArrayList<>(), color, borderColor);
     }
 
     public ButtonList(Rectangle2D.Float bounds) {
-        this(bounds, new ArrayList<>(), Color.GRAY, Color.DARK_GRAY);
+        this(bounds, Color.GRAY, Color.DARK_GRAY);
     }
 
     public void setHorizontal(boolean horizontal) {
