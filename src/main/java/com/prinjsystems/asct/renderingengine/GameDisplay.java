@@ -102,7 +102,7 @@ public class GameDisplay {
         /* FREQUENCY SELECTOR START */
         String frequencyLabelText = "Current frequency: %sHz";
         Label frequencyLabel = new Label(String.format(frequencyLabelText, MainGameLoop.getTargetClockFrequency()),
-                new Rectangle2D.Float(frame.getWidth() - 230, 5, 150, 15));
+                new Rectangle2D.Float(panel.getWidth() - 230, 5, 150, 15));
         uiComponents.add(frequencyLabel);
 
         TextField frequencyField = new TextField(new Rectangle2D.Float(frequencyLabel.getPosX(),
@@ -139,8 +139,8 @@ public class GameDisplay {
         /* SAVE PANEL START */
         int savePanelWidth = 160, savePanelHeight = 90;
         @SuppressWarnings("IntegerDivisionInFloatingPointContext")
-        Panel savePanel = new Panel(new Rectangle2D.Float((frame.getWidth() / 2) - (savePanelWidth / 2),
-                (frame.getHeight() / 2) - (savePanelHeight / 2), savePanelWidth, savePanelHeight)) {
+        Panel savePanel = new Panel(new Rectangle2D.Float((panel.getWidth() / 2) - (savePanelWidth / 2),
+                (panel.getHeight() / 2) - (savePanelHeight / 2), savePanelWidth, savePanelHeight)) {
             @Override
             public void update(KeyEvent evt, int mode) {
                 if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -184,8 +184,8 @@ public class GameDisplay {
         uiComponents.add(savePanel);
         /* SAVE PANEL END */
 
-        Button saveButton = new Button("Save", new Rectangle2D.Float(frame.getWidth() - 55,
-                frame.getHeight() - 48, 43, 15));
+        Button saveButton = new Button("Save", new Rectangle2D.Float(panel.getWidth() - 48,
+                panel.getHeight() - 20, 43, 15));
         saveButton.setAction(() -> {
             savePanel.setVisible(true);
             savePanel.setFocused(true);
@@ -194,8 +194,8 @@ public class GameDisplay {
 
         FontRenderContext frc = new FontRenderContext(null, false, false);
         /* CATEGORY LISTING START */
-        ButtonList categoryList = new ButtonList(new Rectangle2D.Float(0, frame.getHeight() - 95,
-                frame.getWidth() - ((Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2) - 20, 35));
+        ButtonList categoryList = new ButtonList(new Rectangle2D.Float(0, panel.getHeight() - 70,
+                panel.getWidth() - ((Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2) - 20, 35));
         categoryList.setTicksPerWheelUnit(10);
         categoryList.setHorizontal(true);
         for (String categoryName : categories.keySet()) {
@@ -213,7 +213,7 @@ public class GameDisplay {
 
         /* TILE LISTING START */
         tileList = new ButtonList(new Rectangle2D.Float(0, categoryList.getPosY() + categoryList.getHeight(),
-                categoryList.getWidth(), 35));
+                categoryList.getWidth(), categoryList.getHeight()));
         tileList.setTicksPerWheelUnit(10);
         tileList.setHorizontal(true);
         updateTileList(tileList);
@@ -475,14 +475,13 @@ public class GameDisplay {
 
         // Draw "zoom preview"
         int zoomPreviewSize = (int) (Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2;
+        int rectX = panel.getWidth() - 8 - zoomPreviewSize, rectY = panel.getHeight() - 30 - zoomPreviewSize;
         graphics.setColor(Color.WHITE);
-        graphics.drawString("ZOOM", panel.getWidth() - 5 - zoomPreviewSize,
-                panel.getHeight() - 29 - zoomPreviewSize);
+        graphics.drawString("ZOOM", rectX, rectY - 5);
         graphics.setStroke(UIComponent.THICK_STROKE);
-        graphics.drawRect(panel.getWidth() - 5 - zoomPreviewSize, panel.getHeight() - 25 - zoomPreviewSize,
-                zoomPreviewSize + 3, zoomPreviewSize + 3);
+        graphics.drawRect(rectX, rectY, zoomPreviewSize + 3, zoomPreviewSize + 3);
         graphics.setColor(Color.GRAY);
-        graphics.fillRect(panel.getWidth() - 4 - zoomPreviewSize, panel.getHeight() - 24 - zoomPreviewSize,
+        graphics.fillRect(rectX + 1, rectY + 1,
                 ((int) (Tile.TILE_SIZE * camera.getScaleX()) * 2) + 1,
                 ((int) (Tile.TILE_SIZE * camera.getScaleY()) * 2) + 1);
 
@@ -526,7 +525,7 @@ public class GameDisplay {
         return paused;
     }
 
-    public Tile getCurrentTile() {
+    private Tile getCurrentTile() {
         return categories.get(currentCategory).getCurrentTile();
     }
 
