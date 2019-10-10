@@ -13,7 +13,7 @@ public abstract class UIComponent {
     public static final Stroke THICK_STROKE = new BasicStroke(2);
 
     protected float posX, posY, width, height;
-    protected boolean focused;
+    protected boolean focused = false;
 
     public UIComponent(Rectangle2D.Float bounds) {
         if (bounds != null) {

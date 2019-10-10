@@ -64,6 +64,8 @@ public class ButtonList extends UIComponent {
     public void render(Graphics2D graphics) {
         Graphics2D g = (Graphics2D) graphics.create();
 
+        g.setStroke(Label.THICK_STROKE);
+
         g.translate(posX, posY);
         g.setClip(0, 0, (int) width, (int) height);
 
@@ -92,9 +94,9 @@ public class ButtonList extends UIComponent {
 
     @Override
     public void update(MouseEvent evt, int mode) {
+        int eventX = (int) (evt.getX() - posX);
+        int eventY = (int) (evt.getY() - posY);
         for (UIComponent component : buttons) {
-            int eventX = (int) (evt.getX() - posX);
-            int eventY = (int) (evt.getY() - posY);
             if (eventX > component.getPosX() && eventX < component.getPosX() + component.getWidth()
                     && eventY > component.getPosY() && eventY < component.getPosY() + component.getHeight()) {
                 component.setFocused(true);

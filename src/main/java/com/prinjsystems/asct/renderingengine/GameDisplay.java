@@ -30,10 +30,14 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOError;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -41,7 +45,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -52,7 +58,6 @@ public class GameDisplay {
     private AffineTransform camera, identityTransform;
     private Font font;
     private KeyboardHandler keyboardHandler;
-    private MouseHandler mouseHandler;
 
     private GameMap map;
     private Map<String, TileCategory> categories;
@@ -162,7 +167,7 @@ public class GameDisplay {
         save.setAction(() -> {
             String filenameWithExtension = filename.getText() + (filename.getText().endsWith(".ssf") ? "" : ".ssf");
             File outputFile = new File("./saves/" + filenameWithExtension);
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputFile))) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)))) {
                 oos.writeObject(map);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -181,21 +186,123 @@ public class GameDisplay {
         savePanel.addComponent(cancelSave);
 
         savePanel.setVisible(false);
+        savePanel.setFocused(false);
         uiComponents.add(savePanel);
-        /* SAVE PANEL END */
 
-        Button saveButton = new Button("Save", new Rectangle2D.Float(panel.getWidth() - 48,
+        Button saveButton = new Button("Save", new Rectangle2D.Float(panel.getWidth() - 96,
                 panel.getHeight() - 20, 43, 15));
         saveButton.setAction(() -> {
             savePanel.setVisible(true);
             savePanel.setFocused(true);
         });
         uiComponents.add(saveButton);
+        /* SAVE PANEL END */
+
+        /* LOAD PANEL START */
+        int loadPanelWidth = 160, loadPanelHeight = 200;
+        @SuppressWarnings("IntegerDivisionInFloatingPointContext")
+        Panel loadPanel = new Panel(new Rectangle2D.Float((panel.getWidth() / 2) - (loadPanelWidth / 2),
+                (panel.getHeight() / 2) - (loadPanelHeight / 2), loadPanelWidth, loadPanelHeight)) {
+            @Override
+            public void update(KeyEvent evt, int mode) {
+                if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    setVisible(false);
+                    setFocused(false);
+                }
+                super.update(evt, mode);
+            }
+        };
+
+        loadPanel.addComponent(new Label("Load A.S.C.T. Simulation", new Rectangle2D.Float(5, 5, 0, 0)));
+
+        AtomicReference<String> chosenFile = new AtomicReference<>();
+
+        Label fileLabel = new Label("File", new Rectangle2D.Float(5, 25, 0, 0));
+        loadPanel.addComponent(fileLabel);
+
+        // List of files in saves folder
+        ButtonList files = new ButtonList(new Rectangle2D.Float(5, fileLabel.getPosY() + 20,
+                loadPanelWidth - 10, 130), new Color(160, 160, 160), Button.DEFAULT_BORDER_COLOR);
+        files.setTicksPerWheelUnit(20);
+        // TODO: Optimize
+        List<Button> filesButtons = new ArrayList<>();
+        for (File file : Objects.requireNonNull(savesFolder.listFiles())) {
+            if (!file.isFile() || !file.getName().endsWith(".ssf")) {
+                continue;
+            }
+            Button fileButton = new Button(file.getName(), new Rectangle2D.Float(0, 0,
+                    files.getWidth() - 10, 15));
+            fileButton.setAction(() -> {
+                chosenFile.set(file.getName());
+                for (Button btn : filesButtons) {
+                    btn.setBorderColor(Button.DEFAULT_BORDER_COLOR);
+                }
+                fileButton.setBorderColor(Color.WHITE);
+            });
+            filesButtons.add(fileButton);
+        }
+        files.setComponents(filesButtons);
+        loadPanel.addComponent(files);
+
+        // Button that loads the file
+        Button load = new Button("Load", new Rectangle2D.Float(5, files.getPosY() + files.getHeight() + 5,
+                50, 15));
+        load.setAction(() -> {
+            File inputFile = new File("./saves/" + chosenFile);
+            try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(inputFile)))) {
+                map = (GameMap) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            loadPanel.setVisible(false);
+        });
+        loadPanel.addComponent(load);
+
+        int cancelLoadPosX = (int) (load.getPosX() + load.getWidth() + 5);
+        Button cancelLoad = new Button("Cancel", new Rectangle2D.Float(cancelLoadPosX, load.getPosY(),
+                savePanelWidth - cancelLoadPosX - 5, 15));
+        cancelLoad.setAction(() -> {
+            loadPanel.setFocused(false);
+            loadPanel.setVisible(false);
+        });
+        loadPanel.addComponent(cancelLoad);
+
+        loadPanel.setVisible(false);
+        loadPanel.setFocused(false);
+        uiComponents.add(loadPanel);
+
+        Button loadButton = new Button("Load", new Rectangle2D.Float(panel.getWidth() - 96,
+                saveButton.getPosY() - 20, 43, 15));
+        loadButton.setAction(() -> {
+            // Update list of files
+            filesButtons.clear();
+            for (File file : Objects.requireNonNull(savesFolder.listFiles())) {
+                if (!file.isFile() || !file.getName().endsWith(".ssf")) {
+                    continue;
+                }
+                Button fileButton = new Button(file.getName(), new Rectangle2D.Float(0, 0,
+                        files.getWidth() - 10, 15));
+                fileButton.setAction(() -> {
+                    chosenFile.set(file.getName());
+                    for (Button btn : filesButtons) {
+                        btn.setBorderColor(Button.DEFAULT_BORDER_COLOR);
+                    }
+                    fileButton.setBorderColor(Color.WHITE);
+                });
+                filesButtons.add(fileButton);
+            }
+            files.setComponents(filesButtons);
+
+            loadPanel.setVisible(true);
+            loadPanel.setFocused(true);
+        });
+        uiComponents.add(loadButton);
+        /* LOAD PANEL END */
 
         FontRenderContext frc = new FontRenderContext(null, false, false);
         /* CATEGORY LISTING START */
         ButtonList categoryList = new ButtonList(new Rectangle2D.Float(0, panel.getHeight() - 70,
-                panel.getWidth() - ((Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2) - 20, 35));
+                panel.getWidth() - ((Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2) - 58, 35));
         categoryList.setTicksPerWheelUnit(10);
         categoryList.setHorizontal(true);
         for (String categoryName : categories.keySet()) {
@@ -272,7 +379,7 @@ public class GameDisplay {
             @Override
             public void run() {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
-                    savePanel.setVisible(true);
+                    loadPanel.setVisible(true);
                 }
             }
         });
@@ -406,7 +513,7 @@ public class GameDisplay {
             }
         });
 
-        mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
+        MouseHandler mouseHandler = new MouseHandler(mouseEvents, wheelEvents);
         MouseAdapter uiMouseListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -475,7 +582,8 @@ public class GameDisplay {
 
         // Draw "zoom preview"
         int zoomPreviewSize = (int) (Tile.TILE_SIZE * zooms[zooms.length - 1]) * 2;
-        int rectX = panel.getWidth() - 8 - zoomPreviewSize, rectY = panel.getHeight() - 30 - zoomPreviewSize;
+        int rectX = panel.getWidth() - 8 - zoomPreviewSize;
+        int rectY = panel.getHeight() - 8 - zoomPreviewSize;
         graphics.setColor(Color.WHITE);
         graphics.drawString("ZOOM", rectX, rectY - 5);
         graphics.setStroke(UIComponent.THICK_STROKE);
@@ -538,9 +646,13 @@ public class GameDisplay {
                     && e.getX() < uiComponent.getPosX() + uiComponent.getWidth()
                     && e.getY() > uiComponent.getPosY()
                     && e.getY() < uiComponent.getPosY() + uiComponent.getHeight()) {
-                uiComponent.setFocused(true);
-                uiComponent.update(e, mode);
-                activatedComponent = true;
+                if (!(uiComponent instanceof Panel) || ((Panel) uiComponent).isVisible()) {
+                    uiComponent.setFocused(true);
+                    uiComponent.update(e, mode);
+                    activatedComponent = true;
+                } else {
+                    uiComponent.setFocused(true);
+                }
             } else {
                 uiComponent.setFocused(false);
             }
