@@ -14,7 +14,9 @@ import com.prinjsystems.asctlib.structures.GameMap;
 import com.prinjsystems.asctlib.structures.Layer;
 import com.prinjsystems.asctlib.structures.Tile;
 import com.prinjsystems.asctlib.structures.conductors.ConductorTile;
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -70,6 +72,11 @@ public class GameDisplay {
 
     private float[] zooms = new float[]{0.25f, 0.5f, 1f, 1.5f, 2.25f, 3.375f, 5.0625f};
     private int currZoom = 0;
+
+    private List<Tile> copiedTiles;
+    private int boxX, boxY;
+    private int mouseX, mouseY;
+    private boolean copying, pasting;
 
     /* UI Elements */
     private ButtonList tileList;
@@ -328,6 +335,24 @@ public class GameDisplay {
         /* TILE LISTING END */
 
         Map<Integer, JKeyEvent> keyEvents = new HashMap<>();
+        keyEvents.put(KeyEvent.VK_C, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
+                    copying = true;
+                    boxX = -1;
+                    boxY = -1;
+                }
+            }
+        });
+        keyEvents.put(KeyEvent.VK_V, new JKeyEvent(true) {
+            @Override
+            public void run() {
+                if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL)) {
+                    pasting = true;
+                }
+            }
+        });
         // Layers actually work in reverse, so Page Down should increase and Page Up should decrease the layer "pointer"
         keyEvents.put(KeyEvent.VK_PAGE_DOWN, new JKeyEvent(true) {
             @Override
@@ -438,6 +463,10 @@ public class GameDisplay {
         JMouseEvent placeTile = new JMouseEvent(false) {
             @Override
             public void run() {
+                if (copying || pasting) {
+                    return;
+                }
+
                 int posX = (int) (((getX() - camera.getTranslateX()) / Tile.TILE_SIZE) / camera.getScaleX());
                 int posY = (int) (((getY() - camera.getTranslateY()) / Tile.TILE_SIZE) / camera.getScaleY());
                 if (posX >= 0 && posX <= Layer.LAYER_SIZE && posY >= 0 && posY <= Layer.LAYER_SIZE) {
@@ -518,16 +547,80 @@ public class GameDisplay {
             @Override
             public void mousePressed(MouseEvent e) {
                 boolean activatedComponent = updateComponents(e, MouseEvent.MOUSE_PRESSED);
-                if (e.getButton() == MouseEvent.BUTTON1 && !activatedComponent) {
-                    placeTile.setX(e.getX());
-                    placeTile.setY(e.getY());
-                    placeTile.run();
+
+                if (!activatedComponent) {
+                    if (copying && boxX == -1) {
+                        int gridSize = (int) (Tile.TILE_SIZE * camera.getScaleX());
+                        boxX = (int) ((e.getX() - camera.getTranslateX()) / gridSize);
+                        boxY = (int) ((e.getY() - camera.getTranslateX()) / gridSize);
+                        return;
+                    }
+
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        placeTile.setX(e.getX());
+                        placeTile.setY(e.getY());
+                        placeTile.run();
+                    }
                 }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                updateComponents(e, MouseEvent.MOUSE_RELEASED);
+                if (copying) {
+                    copiedTiles = new ArrayList<>();
+                    int gridSize = (int) (Tile.TILE_SIZE * camera.getScaleX());
+                    int lastX = (int) ((e.getX() - camera.getTranslateX()) / gridSize);
+                    int lastY = (int) ((e.getY() - camera.getTranslateX()) / gridSize);
+                    System.out.println("Copying from (" + boxX + ";" + boxY + ") to (" + lastX + ";" + lastY + ")");
+                    for (int yy = boxY; yy <= lastY; yy++) {
+                        for (int xx = boxX; xx <= lastX; xx++) {
+                            copiedTiles.add(map.getLayers().get(map.getCurrentLayer()).getTile(xx, yy));
+                        }
+                    }
+                    copying = false;
+                } else if (pasting) {
+                    // All tiles will be in a order, so incrementing a X and Y counter will not have unexpected behaviour
+                    int gridSize = (int) (Tile.TILE_SIZE * camera.getScaleX());
+                    int initialX = 0, initialY = 0;
+                    for (int i = 0; i < copiedTiles.size(); i++) {
+                        if (copiedTiles.get(i) != null) {
+                            initialX = copiedTiles.get(i).getPosX();
+                            initialY = copiedTiles.get(i).getPosY();
+                            break;
+                        }
+                    }
+                    int xOffset = (int) ((e.getX() - camera.getTranslateX()) / gridSize) - initialX,
+                            yOffset = (int) ((e.getY() - camera.getTranslateX()) / gridSize) - initialY;
+                    try {
+                        for (Tile tile : copiedTiles) {
+                            if (tile == null) {
+                                continue;
+                            }
+
+                            Tile clonedTile = (Tile) tile.clone();
+                            clonedTile.setPosX(tile.getPosX() + xOffset);
+                            clonedTile.setPosY(tile.getPosY() + yOffset);
+                            map.getLayers().get(map.getCurrentLayer()).addTile(clonedTile);
+                        }
+                    } catch (CloneNotSupportedException exc) {
+                        exc.printStackTrace();
+                    }
+                    pasting = false;
+                } else {
+                    updateComponents(e, MouseEvent.MOUSE_RELEASED);
+                }
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
             }
 
             @Override
@@ -540,6 +633,7 @@ public class GameDisplay {
         panel.addMouseListener(uiMouseListener);
         panel.addMouseWheelListener(uiMouseListener);
         panel.addMouseMotionListener(mouseHandler);
+        panel.addMouseMotionListener(uiMouseListener);
         panel.addMouseWheelListener(mouseHandler);
 
         frame.addWindowListener(new WindowAdapter() {
@@ -559,7 +653,7 @@ public class GameDisplay {
         }
     }
 
-    public void render() {
+    public void render() throws CloneNotSupportedException {
         graphics.setFont(font);
         graphics.setTransform(identityTransform);
         graphics.setColor(Color.black);
@@ -605,6 +699,19 @@ public class GameDisplay {
                 ((Button) tileList.getComponent(i)).setBorderColor(Button.DEFAULT_BORDER_COLOR);
             }
         }
+
+        // Draw tile preview
+        Composite oldComposite = graphics.getComposite();
+        AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+        graphics.setComposite(alphaComposite);
+
+        double gridSize = Tile.TILE_SIZE * camera.getScaleX();
+        Tile currentTile = (Tile) getCurrentTile().clone();
+        currentTile.setPosX((int) ((mouseX - camera.getTranslateX()) / gridSize));
+        currentTile.setPosY((int) ((mouseY - camera.getTranslateY()) / gridSize));
+        currentTile.render(graphics);
+
+        graphics.setComposite(oldComposite);
 
         // Draw UI components
         graphics.setTransform(identityTransform);

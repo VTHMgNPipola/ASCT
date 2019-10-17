@@ -92,7 +92,11 @@ public class MainGameLoop extends ASCTMod {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                display.render();
+                try {
+                    display.render();
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
                 display.updateInputs();
             }
         }, 0, (int) (1000 / TARGET_FPS));

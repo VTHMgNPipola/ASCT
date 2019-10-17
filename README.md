@@ -40,6 +40,6 @@ ASCTlib. To add a new tile to the game, for example, you need to extend
 the type of tile that you want to create (for example to create a basic
 conductor create a class that extends `ConductorTile`) and add the
 annotation `PlaceableTile`, and have a constructor with two integers (X
-and Y position, in that order) as arguments or no arguments . ASCT will
+and Y position, in that order) as arguments or no arguments. ASCT will
 recognize all classes that have that annotation and instantiate them by
 those constructors.
