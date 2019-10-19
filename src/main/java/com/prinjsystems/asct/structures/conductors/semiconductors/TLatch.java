@@ -1,9 +1,7 @@
 package com.prinjsystems.asct.structures.conductors.semiconductors;
 
 import com.prinjsystems.asctlib.PlaceableTile;
-import com.prinjsystems.asctlib.structures.ActionTile;
 import com.prinjsystems.asctlib.structures.Tile;
-import com.prinjsystems.asctlib.structures.conductors.semiconductors.NSilicon;
 import com.prinjsystems.asctlib.structures.conductors.semiconductors.PSilicon;
 import java.awt.Color;
 
@@ -18,9 +16,9 @@ public class TLatch extends Latch {
     @Override
     public void trySetPowered(boolean powered, Tile source) {
         if (source != null) {
-            if (source instanceof NSilicon) {
+            if (source instanceof PSilicon) { // PSilicon is the T port
                 conductive = !conductive;
-            } else if (!(source instanceof PSilicon) && source instanceof ActionTile && conductive) {
+            } else if (conductive) {
                 super.trySetPowered(powered, null);
             }
         }

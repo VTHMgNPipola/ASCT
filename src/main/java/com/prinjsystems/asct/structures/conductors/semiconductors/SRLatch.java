@@ -17,9 +17,9 @@ public class SRLatch extends Latch {
     @Override
     public void trySetPowered(boolean powered, Tile source) {
         if (source != null) {
-            if (source instanceof NSilicon) { // NSilicon is the S port
+            if (source instanceof PSilicon) { // PSilicon is the S port
                 conductive = true;
-            } else if (source instanceof PSilicon) { // PSilicon is the R port
+            } else if (source instanceof NSilicon) { // NSilicon is the R port
                 conductive = false;
             } else if (conductive) {
                 super.trySetPowered(powered, null);
