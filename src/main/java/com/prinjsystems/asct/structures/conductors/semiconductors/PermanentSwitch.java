@@ -23,14 +23,14 @@ public class PermanentSwitch extends Transistor {
 
     @Override
     public void trySetPowered(boolean powered, Tile source) {
-        if (source != null && canReceivePower) {
+        if (source != null) {
             if (source instanceof NSilicon) {
                 conductive = false;
                 conductiveFor = 0;
             } else if (source instanceof PSilicon) {
                 conductive = true;
                 conductiveFor = 0;
-            } else if (source instanceof ActionTile && conductive) {
+            } else if (source instanceof ActionTile && conductive && canReceivePower) {
                 this.powered = powered;
                 canReceivePower = false;
                 temp += 0.1f;
