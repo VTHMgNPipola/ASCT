@@ -20,9 +20,8 @@ public class DFlipFlop extends Latch {
     @Override
     public void trySetPowered(boolean powered, Tile source) {
         if (source != null) {
-            if (source instanceof NSilicon && canReceivePower) { // NSilicon is the clock port
+            if (source instanceof NSilicon) { // NSilicon is the clock port
                 clockCycles = 0;
-                canReceivePower = false;
             } else if (source instanceof PSilicon && clockCycles != -1) { // PSilicon is the D port
                 conductive = powered;
                 clockCycles = -1;
