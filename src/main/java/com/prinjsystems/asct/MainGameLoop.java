@@ -7,6 +7,7 @@ import com.prinjsystems.asctlib.TileCategory;
 import com.prinjsystems.asctlib.TileCategoryHolder;
 import com.prinjsystems.asctlib.structures.Tile;
 import java.awt.Dimension;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -25,6 +26,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import javax.swing.JOptionPane;
 import org.reflections.Reflections;
 
@@ -41,6 +44,7 @@ public class MainGameLoop extends ASCTMod {
         List<URL> jarUrlList = walkOnFolder(modFolder);
         URLClassLoader modClassLoader = new URLClassLoader(jarUrlList.toArray(new URL[0]),
                 MainGameLoop.class.getClassLoader());
+        List<Class<?>> loadedTiles = loadModClasses(modClassLoader, jarUrlList);
         // TODO: Load classes from jars inside ./mods/ folder
 
         // Startup mods
@@ -53,10 +57,12 @@ public class MainGameLoop extends ASCTMod {
         Set<Class<?>> annotatedTiles = reflections.getTypesAnnotatedWith(PlaceableTile.class);
         List<TileCategory> categoryList = TileCategoryHolder.getInstance().getCategories();
         Map<String, TileCategory> categories = new TreeMap<>();
+        annotatedTiles.addAll(loadedTiles);
         for (TileCategory category : categoryList) {
             categories.put(category.getName(), category);
         }
         for (Class<?> annotatedTile : annotatedTiles) {
+            // If a subclass of a placeable tile isn't itself placeable
             if (annotatedTile.getAnnotation(PlaceableTile.class) == null) {
                 continue;
             }
@@ -138,6 +144,29 @@ public class MainGameLoop extends ASCTMod {
             }
         });
         return urlList;
+    }
+
+    private static List<Class<?>> loadModClasses(ClassLoader classLoader, List<URL> urls) throws IOException,
+            ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            InstantiationException {
+        List<Class<?>> placeableTiles = new ArrayList<>();
+        for (URL url : urls) {
+            JarInputStream jarInputStream = new JarInputStream(new FileInputStream(url.getFile()));
+            JarEntry jarEntry;
+            while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
+                if (jarEntry.getName().endsWith(".class")) {
+                    Class<?> clazz = classLoader.loadClass(jarEntry.getName().replaceAll("/", "\\.")
+                            .replace(".class", ""));
+                    if (clazz.getSuperclass() == ASCTMod.class) {
+                        ((ASCTMod) clazz.getDeclaredConstructor().newInstance()).startup();
+                    }
+                    if (clazz.isAnnotationPresent(PlaceableTile.class)) {
+                        placeableTiles.add(clazz);
+                    }
+                }
+            }
+        }
+        return placeableTiles;
     }
 
     @Override
