@@ -529,7 +529,8 @@ public class GameDisplay {
             @Override
             public void run() {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom < zooms.length - 1) {
-                    camera.setToScale(zooms[++currZoom], zooms[currZoom]);
+                    double scaleFactor = zooms[++currZoom] / camera.getScaleX();
+                    camera.scale(scaleFactor, scaleFactor);
                 }
             }
         });
@@ -537,7 +538,8 @@ public class GameDisplay {
             @Override
             public void run() {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom > 0) {
-                    camera.setToScale(zooms[--currZoom], zooms[currZoom]);
+                    double scaleFactor = zooms[--currZoom] / camera.getScaleX();
+                    camera.scale(scaleFactor, scaleFactor);
                 }
             }
         });
