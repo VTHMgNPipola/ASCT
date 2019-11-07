@@ -8,7 +8,7 @@ public class TwoTDelay extends Delay {
     private static final long serialVersionUID = 2840522733501983180L;
 
     public TwoTDelay(int posX, int posY) {
-        super(posX, posY, new Color(200, 0, 200), "2T Delay", "D2T");
+        super(posX, posY, new Color(215, 0, 215), "2T Delay", "D2T");
         delay = 2;
     }
 }
