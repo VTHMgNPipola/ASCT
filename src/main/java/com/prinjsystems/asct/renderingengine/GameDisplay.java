@@ -531,6 +531,10 @@ public class GameDisplay {
                 if (keyboardHandler.isFlagActive(KeyEvent.VK_CONTROL) && currZoom < zooms.length - 1) {
                     double scaleFactor = zooms[++currZoom] / camera.getScaleX();
                     camera.scale(scaleFactor, scaleFactor);
+
+                    double newTranslateX = camera.getTranslateX() * scaleFactor;
+                    double newTranslateY = camera.getTranslateY() * scaleFactor;
+                    camera.translate(newTranslateX - camera.getTranslateX(), newTranslateY - camera.getTranslateY());
                 }
             }
         });

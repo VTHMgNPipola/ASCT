@@ -45,7 +45,6 @@ public class MainGameLoop extends ASCTMod {
         URLClassLoader modClassLoader = new URLClassLoader(jarUrlList.toArray(new URL[0]),
                 MainGameLoop.class.getClassLoader());
         List<Class<?>> loadedTiles = loadModClasses(modClassLoader, jarUrlList);
-        // TODO: Load classes from jars inside ./mods/ folder
 
         // Startup mods
         Reflections reflections = new Reflections("com");
